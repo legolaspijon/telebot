@@ -34,7 +34,7 @@ class TelegramController extends Controller {
         foreach ($segments as $command) {
             if(array_key_exists($command, $this->commands)){
                 $ClassNamespace = $this->commandClassNamespace . $this->commands[$command];
-                $command = new $ClassNamespace();
+                $command = new $ClassNamespace($this->update);
                 $command->execute();
             }
         }
