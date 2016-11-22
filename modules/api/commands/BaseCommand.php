@@ -2,12 +2,15 @@
 
 namespace app\modules\api\commands;
 
-class Command {
+abstract class BaseCommand {
 
     public $update;
-    
+
     public function __construct($update)
     {
         $this->update = $update;
     }
+
+    abstract public function execute();
+    
 }
