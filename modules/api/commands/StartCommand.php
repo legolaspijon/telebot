@@ -6,27 +6,18 @@ class StartCommand extends BaseCommand
 {
     public function execute()
     {
-        $opz = [
-            [
-                ["text" => "Выбор города", "callback_data" => "/setcity"],
-                ["text" => "Выбор ед. измерения", "callback_data" => "/setmeasurement"],
-            ],
-            [
-                ["text" => "Выбор Языка", "callback_data" => "/setlang"],
-                ["text" => "Уведомления", "callback_data" => "/settimenotify"],
-            ]
+        $message = $this->update->message;
+        
+        $btns = [
+            ['today', 'tomorrow'],
+            ['5 days', 'settings']
         ];
-
-        $message = isset($this->update->callback_query) ?
-            $this->update->callback_query->message : $this->update->message;
-
-        $keyboard = array("inline_keyboard" => $opz, 'one_time_keyboard' => true);
-        $keyboard = json_encode($keyboard);
+        $keyboard = ['keyboard' => $btns, 'one_time_keyboard' => true, 'resize_keyboard' => true];
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
-            'text' => '!',
-            'reply_markup' => $keyboard
+            'text' => 'What weather do you want to see???',
+            'reply_markup' => json_encode($keyboard)
         ]);
     }
 }
