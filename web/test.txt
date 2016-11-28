@@ -1,0 +1,26 @@
+stdClass Object
+(
+    [update_id] => 248263092
+    [message] => stdClass Object
+        (
+            [message_id] => 856
+            [from] => stdClass Object
+                (
+                    [id] => 277330578
+                    [first_name] => Dima
+                    [last_name] => Fomichev
+                )
+
+            [chat] => stdClass Object
+                (
+                    [id] => 277330578
+                    [first_name] => Dima
+                    [last_name] => Fomichev
+                    [type] => private
+                )
+
+            [date] => 1480351960
+            [text] => Lang
+        )
+
+)

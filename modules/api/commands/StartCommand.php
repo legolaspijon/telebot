@@ -12,7 +12,7 @@ class StartCommand extends BaseCommand
             ['today', 'tomorrow'],
             ['5 days', 'settings']
         ];
-        $keyboard = ['keyboard' => $btns, 'one_time_keyboard' => true, 'resize_keyboard' => true];
+        $keyboard = ['keyboard' => $btns, 'resize_keyboard' => true];
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,

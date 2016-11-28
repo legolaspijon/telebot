@@ -2,10 +2,13 @@
 
 namespace app\modules\api\commands;
 
+use app\modules\api\models\Users;
+
 class SetCityCommand extends BaseCommand{
 
     public function execute(){
-        $message = isset($this->update->callback_query) ? $this->update->callback_query->message : $this->update->message;
+        var_dump(1);
+        $message = $this->update->message;
 
         if($this->answer) {
             $this->setCity($this->update->message);
@@ -15,14 +18,37 @@ class SetCityCommand extends BaseCommand{
 
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => 'Введите город',
+                'text' => 'Choose city',
+                'reply_markup' => false,
             ]);
         }
     }
 
+    public function checkCity($city){
+        $countries = simplexml_load_file('https://pogoda.yandex.ru/static/cities.xml');
+        foreach ($countries->country as $cities) {
+            foreach ($cities->city as $xmlcity)
+                if(mb_strtolower($xmlcity) == mb_strtolower($city)) {
+                    return true;
+                }
+        }
+
+        return false;
+    }
+
+
     protected function setCity($message){
-        var_dump('Looking for ' . $message->text . ' city...');
-        
+        echo $message->text . ": ";
+        if(!$this->checkCity($message->text)) {
+            \Yii::$app->telegram->sendMessage([
+                'chat_id' => $message->chat->id,
+                'text' => 'City ' . $message->text . ' does not exist',
+            ]);
+            return;
+        }
+
+        $user = Users::findOne(['chat_id' => $message->chat->id]);
+
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
             'text' => 'City ' . $message->text . ' was successfully set...',
