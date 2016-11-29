@@ -9,7 +9,6 @@ use yii\web\Controller;
 
 class TelegramController extends Controller
 {
-
     /**
      * namespace where commands places
      * @var $commandClassNamespace string
@@ -17,10 +16,28 @@ class TelegramController extends Controller
     public $commandClassNamespace = '\app\modules\api\commands\\';
 
     /**
-     * command which use by default
+     * Default Command
      * @var $defaultCommand string
      * */
     public $defaultCommand = '';
+
+    /**
+     * Default language
+     * @var $defaultCommand string
+     * */
+    public $defaultLang = 'en';
+
+    /**
+     * Default measurement
+     * @var $defaultMeasurement string
+     * */
+    public $defaultMeasurement = 'C';
+
+    /**
+     * current command
+     * @var $currentCommand string
+     * */
+    public $currentCommand;
 
     /**
      * last updates
@@ -33,40 +50,56 @@ class TelegramController extends Controller
      * */
     public $commands = [
         // Settings
-        '/settings' => 'SettingsCommand',
-        '/city' => 'SetCityCommand',
-        '/lang' => 'SetLangCommand',
-        '/measurement' => 'SetMeasurementCommand',
-        '/notification' => 'SetNotificationCommand',
+        'settings' => 'SettingsCommand',
+        'measurement' => 'SetMeasurementCommand',
+        'city' => 'SetCityCommand',
+        'language' => 'SetLangCommand',
+        'notification' => 'SetNotificationCommand',
         '/back' => 'BackCommand',
 
         // Show weather for:
-        '/today' => 'ShowWeatherCommand',
-        '/tomorrow' => 'ShowWeatherCommand',
-        '/5 day' => 'ShowWeatherCommand',
-        
+        'today' => 'ShowWeatherTodayCommand',
+        'tomorrow' => 'ShowWeatherTomorrowCommand',
+        '5 days' => 'ShowWeatherFiveCommand',
+
         //
         '/hello' => 'HelloCommand',
-        '/start' => 'StartCommand'
+        '/start' => 'StartCommand',
+        '/help' => 'HelpCommand',
     ];
+
+    /**
+     * @var $user Users
+     * */
+    public $user;
+
 
     public function beforeAction($action)
     {
         $update = \Yii::$app->telegram->getUpdates()->result;
         $this->update = array_pop($update);
-        $user = new Users();
-        $searchUser = $user->findOne(['chat_id' => $this->update->message->chat->id]);
-
-        if($searchUser === null){
-            $user->lang = 'en';
+        $this->user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
+        if($this->user === null){
+            $user = new Users();
+            $user->lang = $this->defaultLang;
+            $user->measurement = $this->defaultMeasurement;
             $user->chat_id = $this->update->message->chat->id;
-            $user->username = $this->update->message->from->first_name;
+            $user->first_name = $this->update->message->from->first_name;
+            $user->last_name = $this->update->message->from->first_name;
             $user->save();
+
+            \Yii::$app->language = $this->defaultLang;
         } else {
-            \Yii::$app->language = $searchUser->lang;
+            \Yii::$app->language = $this->user->lang;
         }
 
         return parent::beforeAction($action);
+    }
+
+    public function afterAction($action, $result)
+    {
+        $this->currentCommand === 'back' ?: \Yii::$app->session->set('beforeCommand', $this->currentCommand);
+        return parent::afterAction($action, $result);
     }
 
 
@@ -75,30 +108,34 @@ class TelegramController extends Controller
      * */
     public function actionWebHook()
     {
-
-        var_dump(file_put_contents(\Yii::getAlias('@webroot') . '/test.txt', print_r($this->update, true)));
+        //var_dump(file_put_contents(\Yii::getAlias('@webroot') . '/test.txt', print_r($this->update, true)));
         $answer = null;
-        if(isset($this->update->callback_query)){
-            $command = $this->update->callback_query->data;
-        } elseif($command = $this->getBeforeCommand()){
+        if($this->isAnswer()){
+            $command = $this->getBeforeCommand();
             $answer = $this->update->message->text;
         } else {
             $command = $this->update->message->text;
         }
 
-        $this->createCommand($command, $answer);
+        try {
+            $this->createCommand($command, $answer);
+        }catch (Exception $e){
+            echo $e;
+        }
     }
 
+    public function isAnswer(){
+        return \Yii::$app->session->get('isAnswer', false);
+    }
 
     /**
      * @var $text string
      * @var $answer string
+     * @throws Exception
      * */
     protected function createCommand($text, $answer = null)
     {
-        $segments = explode(' ', $text);
-        $command = $this->checkCommand($segments, $answer);
-
+        $command = $this->checkCommand($text, $answer);
         if (!$command) return;
         if ($command instanceof BaseCommand) {
             $command->execute();
@@ -109,25 +146,24 @@ class TelegramController extends Controller
 
     /**
      * @param $commands array
+     * @param $answer string
      * @return BaseCommand|false
      * */
     public function checkCommand($commands, $answer = null)
     {
-        foreach ($commands as $command) {
-            $command = strtolower($command);
-            $command = ((substr($command, 0, 1) == '/') ? '' : '/') . $command;
-
-            if (array_key_exists($command, $this->commands)) {
-                $ClassNamespace = $this->commandClassNamespace . $this->commands[$command];
-                var_dump($ClassNamespace);
-                return new $ClassNamespace($this->update, $answer);
+        foreach ($this->commands as $command => $class) {
+            $commands = strtolower($commands);
+            if (preg_match("~(\B)?$command\b~", $commands)) {
+                $this->currentCommand = $command;
+                $classNamespace = $this->commandClassNamespace . $this->commands[$command];
+                return new $classNamespace($this->update, $this->user, $answer);
             }
         }
 
         return false;
     }
 
-    protected function getBeforeCommand(){
+    public function getBeforeCommand(){
         $session = \Yii::$app->session;
         return $session->has('beforeCommand') ? $session->get('beforeCommand') : false;
     }

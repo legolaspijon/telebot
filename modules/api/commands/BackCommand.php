@@ -6,7 +6,9 @@ class BackCommand extends BaseCommand {
 
     public function execute()
     {
-        $beforeCommandInstance = \Yii::$app->controller->checkCommand(['/start']);
+        $controller = \Yii::$app->controller;
+        $beforeCommandInstance = $controller->checkCommand([$controller->getBeforeCommand()]);
         if($beforeCommandInstance) $beforeCommandInstance->execute();
     }
+
 }

@@ -8,9 +8,21 @@ $config = [
     'bootstrap' => ['log'],
     'modules' => require(__DIR__ . '/modules.php'),
     'components' => [
+        'i18n' => [
+            'translations' => [
+                'app*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                    'sourceLanguage' => 'en',
+                    'fileMap' => [
+                        'app'       => 'app.php',
+                    ],
+                ],
+            ],
+        ],
         'telegram' => [
             'class' => 'aki\telegram\Telegram',
-            'botToken' => '282032766:AAGdt7rkXdiqPHLTH1g-CvvcFaLPm_EQ3LQ',
+            'botToken' => '260016296:AAH6IbNRAcrhdjGffKxXQiy3fKyzPYUNSLg',
         ],
         'request' => [
             'cookieValidationKey' => '3ygXhZzLrhX6EgQ_nkraMKsUGxKkl3eg',
@@ -34,13 +46,11 @@ $config = [
             ],
         ],
         'db' => require(__DIR__ . '/db.php'),
-
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => require(__DIR__. '/routes.php'),
         ],
-
     ],
     'params' => $params,
 ];

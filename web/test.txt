@@ -1,9 +1,9 @@
 stdClass Object
 (
-    [update_id] => 248263092
+    [update_id] => 441299017
     [message] => stdClass Object
         (
-            [message_id] => 856
+            [message_id] => 127
             [from] => stdClass Object
                 (
                     [id] => 277330578
@@ -19,8 +19,19 @@ stdClass Object
                     [type] => private
                 )
 
-            [date] => 1480351960
-            [text] => Lang
+            [date] => 1480421149
+            [text] => /start
+            [entities] => Array
+                (
+                    [0] => stdClass Object
+                        (
+                            [type] => bot_command
+                            [offset] => 0
+                            [length] => 6
+                        )
+
+                )
+
         )
 
 )

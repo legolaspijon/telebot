@@ -6,22 +6,44 @@ use app\modules\api\models\Users;
 
 class SetCityCommand extends BaseCommand{
 
-    public function execute(){
-        var_dump(1);
+    public function execute(){;
         $message = $this->update->message;
 
         if($this->answer) {
             $this->setCity($this->update->message);
-            $this->unsetBeforeCommand();
         } else {
-            $this->setBeforeCommand($this->update->message->text);
-
+            $this->setIsAnswer();
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => 'Choose city',
+                'text' => 'Enter the city',
                 'reply_markup' => false,
             ]);
         }
+    }
+
+    protected function setCity($message){
+
+        if(!$this->checkCity($message->text)) {
+            \Yii::$app->telegram->sendMessage([
+                'chat_id' => $message->chat->id,
+                'text' => 'City ' . $message->text . ' does not exist',
+            ]);
+            return;
+        }
+
+        if(Users::setOption('city', strtolower($message->text), $message->chat->id)){
+            \Yii::$app->telegram->sendMessage([
+                'chat_id' => $message->chat->id,
+                'text' => 'City ' . $message->text . ' was successfully set...',
+            ]);
+            $this->unsetIsAnswer();
+        } else {
+            \Yii::$app->telegram->sendMessage([
+                'chat_id' => $message->chat->id,
+                'text' => 'City ' . $message->text . ' is not set, something wrong... try again',
+            ]);
+        }
+
     }
 
     public function checkCity($city){
@@ -32,26 +54,6 @@ class SetCityCommand extends BaseCommand{
                     return true;
                 }
         }
-
         return false;
-    }
-
-
-    protected function setCity($message){
-        echo $message->text . ": ";
-        if(!$this->checkCity($message->text)) {
-            \Yii::$app->telegram->sendMessage([
-                'chat_id' => $message->chat->id,
-                'text' => 'City ' . $message->text . ' does not exist',
-            ]);
-            return;
-        }
-
-        $user = Users::findOne(['chat_id' => $message->chat->id]);
-
-        \Yii::$app->telegram->sendMessage([
-            'chat_id' => $message->chat->id,
-            'text' => 'City ' . $message->text . ' was successfully set...',
-        ]);
     }
 }

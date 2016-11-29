@@ -2,15 +2,15 @@
 
 namespace app\modules\api\models;
 
-use Yii;
-
 /**
  * This is the model class for table "users".
  *
  * @property integer $id
- * @property integer $caht_id
- * @property string $username
+ * @property integer $chat_id
+ * @property string $first_name
+ * @property string $last_name
  * @property string $lang
+ * @property string $me
  */
 class Users extends \yii\db\ActiveRecord
 {
@@ -22,6 +22,10 @@ class Users extends \yii\db\ActiveRecord
         return 'users';
     }
 
+    public static function enums(){
+
+    }
+
     /**
      * @inheritdoc
      */
@@ -29,10 +33,19 @@ class Users extends \yii\db\ActiveRecord
     {
         return [
             [['chat_id'], 'integer'],
-            [['username'], 'safe'],
-            [['username'], 'string', 'max' => 60],
-            [['lang'], 'string', 'max' => 5],
+            [['first_name', 'last_name'], 'safe'],
+            [['first_name', 'last_name'], 'string', 'max' => 60],
+            [['city'], 'string', 'max' => 255],
+            [['lang'], 'validateLang'],
         ];
+    }
+
+    public function validateLang(){
+        if(!in_array($this->lang, ['ru', 'en'])) {
+            $this->addError('lang', 'not correct');
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -42,9 +55,28 @@ class Users extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'caht_id' => 'Caht ID',
-            'username' => 'Username',
+            'chat_id' => 'Chat ID',
+            'first_name' => 'first_name',
+            'last_name' => 'last_name',
             'lang' => 'Lang',
+            'city' => 'City',
         ];
+    }
+
+    /**
+     * Save option
+     * @param $option string
+     * @param $value string
+     * @return bool|array
+     * */
+    public static function setOption($option, $value, $chat_id)
+    {
+        $user = self::findOne(['chat_id' => $chat_id]);
+        $user->{$option} = $value;
+        if ($user->validate()) {
+            return $user->save();
+        } else {
+            return false;
+        }
     }
 }

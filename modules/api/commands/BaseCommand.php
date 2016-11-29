@@ -1,34 +1,39 @@
 <?php
 
 namespace app\modules\api\commands;
+use app\modules\api\models\Users;
 
 abstract class BaseCommand {
 
     /**
-     * @param $args array of text & beforeCommand
+     * @var $args array of text & beforeCommand
      * */
     public $answer;
 
     /**
-     * @param $update array of response
+     * @var $update array of response
      * */
     public $update;
 
-    public function __construct($update, $answer = null)
+    /**
+     * @var $user Users
+     * */
+    public $user;
+
+    public function __construct($update, $user,$answer = null)
     {
         $this->answer = $answer;
         $this->update = $update;
+        $this->user = $user;
     }
 
     abstract public function execute();
 
-    protected function setBeforeCommand($command){
-        $session = \Yii::$app->session;
-        $session->set('beforeCommand', $command);
+    protected function setIsAnswer(){
+        \Yii::$app->session->set('isAnswer', true);
     }
 
-    protected function unsetBeforeCommand(){
-        $session = \Yii::$app->session;
-        $session->remove('beforeCommand');
+    public function unsetIsAnswer(){
+        \Yii::$app->session->remove('isAnswer');
     }
 }

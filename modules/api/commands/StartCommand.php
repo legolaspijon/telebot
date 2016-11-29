@@ -7,16 +7,14 @@ class StartCommand extends BaseCommand
     public function execute()
     {
         $message = $this->update->message;
-        
-        $btns = [
-            ['today', 'tomorrow'],
-            ['5 days', 'settings']
-        ];
+        $text =         \Yii::t("app", "What weather do you want to see???");
+        $text .= "\n".  \Yii::t("app", "For looking supported command list use /help");
+        $btns = [['today', 'tomorrow'],['5 days', 'settings']];
         $keyboard = ['keyboard' => $btns, 'resize_keyboard' => true];
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
-            'text' => 'What weather do you want to see???',
+            'text' => $text,
             'reply_markup' => json_encode($keyboard)
         ]);
     }
