@@ -20,7 +20,7 @@ abstract class BaseCommand {
      * */
     public $user;
 
-    public function __construct($update, $user,$answer = null)
+    public function __construct($update, $user, $answer = null)
     {
         $this->answer = $answer;
         $this->update = $update;

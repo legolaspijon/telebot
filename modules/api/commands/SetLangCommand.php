@@ -14,7 +14,7 @@ class SetLangCommand extends BaseCommand{
             $this->setLang($message);
         } else {
             $this->setIsAnswer();
-            $btn = [['ru', 'en']];
+            $btn = [['back'], ['ru', 'en']];
             $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,

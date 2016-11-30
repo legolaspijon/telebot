@@ -14,7 +14,7 @@ class SetMeasurementCommand extends BaseCommand
             $this->setMeasurement($message);
         } else {
             $this->setIsAnswer();
-            $btn = [['C', 'F']];
+            $btn = [['back'], ['C', 'F']];
             $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
@@ -38,7 +38,7 @@ class SetMeasurementCommand extends BaseCommand
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
-            'text' => 'Measurement ' . $message->text . ' was not set, something wrong...',
+            'text' => \Yii::t("app", 'Measurement {text} was not set, something wrong...', ['text' => $message->text]),
         ]);
 
         return false;

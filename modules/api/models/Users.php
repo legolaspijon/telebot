@@ -10,7 +10,8 @@ namespace app\modules\api\models;
  * @property string $first_name
  * @property string $last_name
  * @property string $lang
- * @property string $me
+ * @property string $measurement
+ * @property string $city
  */
 class Users extends \yii\db\ActiveRecord
 {
@@ -22,10 +23,6 @@ class Users extends \yii\db\ActiveRecord
         return 'users';
     }
 
-    public static function enums(){
-
-    }
-
     /**
      * @inheritdoc
      */
@@ -35,6 +32,7 @@ class Users extends \yii\db\ActiveRecord
             [['chat_id'], 'integer'],
             [['first_name', 'last_name'], 'safe'],
             [['first_name', 'last_name'], 'string', 'max' => 60],
+            [['measurement'], 'string', 'max' => 1],
             [['city'], 'string', 'max' => 255],
             [['lang'], 'validateLang'],
         ];
@@ -60,6 +58,7 @@ class Users extends \yii\db\ActiveRecord
             'last_name' => 'last_name',
             'lang' => 'Lang',
             'city' => 'City',
+            'measurement' => 'Measurement'
         ];
     }
 

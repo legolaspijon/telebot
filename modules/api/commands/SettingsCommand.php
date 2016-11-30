@@ -15,7 +15,7 @@ class SettingsCommand extends BaseCommand
         $text .= "\n*". \Yii::t("app", "Units of measurement") .":* " . $this->user->measurement;
         $text .= "\n*". \Yii::t("app", "Notification") .":* " . 'notification here';
         $text .= "\n*". \Yii::t('app', "Select an option...") ."*";
-        $opz = [["City", "Measurement"], ["Language", "Notification"]];
+        $opz = [['back'], ["City", "Measurement"], ["Language", "Notification"]];
         $keyboard = ["keyboard" => $opz, "resize_keyboard" => true];
         $keyboard = json_encode($keyboard);
 

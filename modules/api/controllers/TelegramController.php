@@ -49,7 +49,7 @@ class TelegramController extends Controller
      * command list
      * */
     public $commands = [
-        // Settings
+    // Settings
         'settings' => 'SettingsCommand',
         'measurement' => 'SetMeasurementCommand',
         'city' => 'SetCityCommand',
@@ -57,12 +57,12 @@ class TelegramController extends Controller
         'notification' => 'SetNotificationCommand',
         '/back' => 'BackCommand',
 
-        // Show weather for:
+    // Show weather for:
         'today' => 'ShowWeatherTodayCommand',
         'tomorrow' => 'ShowWeatherTomorrowCommand',
         '5 days' => 'ShowWeatherFiveCommand',
 
-        //
+    //
         '/hello' => 'HelloCommand',
         '/start' => 'StartCommand',
         '/help' => 'HelpCommand',
@@ -76,6 +76,8 @@ class TelegramController extends Controller
 
     public function beforeAction($action)
     {
+//        \Yii::$app->session->remove('state');
+//        \Yii::$app->session->remove('isAnswer');exit;
         $update = \Yii::$app->telegram->getUpdates()->result;
         $this->update = array_pop($update);
         $this->user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
@@ -87,7 +89,6 @@ class TelegramController extends Controller
             $user->first_name = $this->update->message->from->first_name;
             $user->last_name = $this->update->message->from->first_name;
             $user->save();
-
             \Yii::$app->language = $this->defaultLang;
         } else {
             \Yii::$app->language = $this->user->lang;
@@ -98,7 +99,6 @@ class TelegramController extends Controller
 
     public function afterAction($action, $result)
     {
-        $this->currentCommand === 'back' ?: \Yii::$app->session->set('beforeCommand', $this->currentCommand);
         return parent::afterAction($action, $result);
     }
 
@@ -108,20 +108,15 @@ class TelegramController extends Controller
      * */
     public function actionWebHook()
     {
-        //var_dump(file_put_contents(\Yii::getAlias('@webroot') . '/test.txt', print_r($this->update, true)));
         $answer = null;
         if($this->isAnswer()){
-            $command = $this->getBeforeCommand();
+            $command = $this->getCurrentState();
             $answer = $this->update->message->text;
         } else {
             $command = $this->update->message->text;
         }
 
-        try {
-            $this->createCommand($command, $answer);
-        }catch (Exception $e){
-            echo $e;
-        }
+        $this->createCommand($command, $answer);
     }
 
     public function isAnswer(){
@@ -133,11 +128,17 @@ class TelegramController extends Controller
      * @var $answer string
      * @throws Exception
      * */
-    protected function createCommand($text, $answer = null)
+    protected function createCommand($c, $answer = null)
     {
-        $command = $this->checkCommand($text, $answer);
+        $command = $this->checkCommand($c, $answer);
+        if($answer == 'back') {
+            \Yii::$app->session->remove('isAnswer');
+        }
+
         if (!$command) return;
         if ($command instanceof BaseCommand) {
+            $this->setStates();
+            var_dump(\Yii::$app->session->get('state'));
             $command->execute();
         } else {
             throw new Exception('Command class must extends BaseCommand');
@@ -151,20 +152,54 @@ class TelegramController extends Controller
      * */
     public function checkCommand($commands, $answer = null)
     {
+        if ($commands == null) {
+            return false;
+        }
+        if ($commands == 'back' || $answer == 'back') {
+            $commands = $this->getStateBefore();
+            $answer = null;
+        }
+
         foreach ($this->commands as $command => $class) {
             $commands = strtolower($commands);
             if (preg_match("~(\B)?$command\b~", $commands)) {
                 $this->currentCommand = $command;
                 $classNamespace = $this->commandClassNamespace . $this->commands[$command];
+
                 return new $classNamespace($this->update, $this->user, $answer);
             }
         }
-
         return false;
     }
 
-    public function getBeforeCommand(){
+    protected function getCurrentState(){
         $session = \Yii::$app->session;
-        return $session->has('beforeCommand') ? $session->get('beforeCommand') : false;
+        $state = $session->get('state', [null]);
+        return end($state);
+    }
+
+    protected function getStateBefore(){
+        $session = \Yii::$app->session;
+        $state = $session->get('state', [null]);
+
+        return array_shift($state);
+    }
+
+    protected function setStates(){
+        $state = null;
+        $session = \Yii::$app->session;
+        if ($session->has('state')) {
+            $state = $session->get('state');
+            if (count($state) > 1 && $state != $this->currentCommand) {
+                array_shift($state);
+                array_push($state, $this->currentCommand);
+            } else {
+                array_push($state, $this->currentCommand);
+            }
+
+            $session->set('state', $state);
+            return;
+        }
+        $session->set('state', [$this->currentCommand]);
     }
 }

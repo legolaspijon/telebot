@@ -6,22 +6,24 @@ use app\modules\api\models\Users;
 
 class SetCityCommand extends BaseCommand{
 
-    public function execute(){;
+    public function execute(){
         $message = $this->update->message;
-
         if($this->answer) {
             $this->setCity($this->update->message);
         } else {
             $this->setIsAnswer();
+            $btn = [['back']];
+            $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true]);
+
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 'text' => 'Enter the city',
-                'reply_markup' => false,
+                'reply_markup' => $keyboard,
             ]);
         }
     }
 
-    protected function setCity($message){
+    private function setCity($message){
 
         if(!$this->checkCity($message->text)) {
             \Yii::$app->telegram->sendMessage([
@@ -46,7 +48,7 @@ class SetCityCommand extends BaseCommand{
 
     }
 
-    public function checkCity($city){
+    private function checkCity($city){
         $countries = simplexml_load_file('https://pogoda.yandex.ru/static/cities.xml');
         foreach ($countries->country as $cities) {
             foreach ($cities->city as $xmlcity)
