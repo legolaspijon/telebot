@@ -30,15 +30,15 @@ class Users extends \yii\db\ActiveRecord
     {
         return [
             [['chat_id'], 'integer'],
-            [['first_name', 'last_name'], 'safe'],
             [['first_name', 'last_name'], 'string', 'max' => 60],
             [['measurement'], 'string', 'max' => 1],
             [['city'], 'string', 'max' => 255],
-            [['lang'], 'validateLang'],
+            [['lang'], 'in', 'range' => [array_keys(\Yii::$app->params['languages'])]],
         ];
     }
 
-    public function validateLang(){
+    public function validateLang()
+    {
         if(!in_array($this->lang, ['ru', 'en'])) {
             $this->addError('lang', 'not correct');
             return false;
@@ -66,16 +66,13 @@ class Users extends \yii\db\ActiveRecord
      * Save option
      * @param $option string
      * @param $value string
-     * @return bool|array
+     * @return bool
      * */
     public static function setOption($option, $value, $chat_id)
     {
         $user = self::findOne(['chat_id' => $chat_id]);
         $user->{$option} = $value;
-        if ($user->validate()) {
-            return $user->save();
-        } else {
-            return false;
-        }
+
+        return $user->save();
     }
 }

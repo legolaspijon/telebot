@@ -28,12 +28,4 @@ abstract class BaseCommand {
     }
 
     abstract public function execute();
-
-    protected function setIsAnswer(){
-        \Yii::$app->session->set('isAnswer', true);
-    }
-
-    public function unsetIsAnswer(){
-        \Yii::$app->session->remove('isAnswer');
-    }
 }

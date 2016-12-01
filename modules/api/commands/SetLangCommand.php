@@ -2,6 +2,7 @@
 
 namespace app\modules\api\commands;
 
+use app\modules\api\helpers\StateStorageHelper;
 use app\modules\api\models\Users;
 
 class SetLangCommand extends BaseCommand{
@@ -13,8 +14,8 @@ class SetLangCommand extends BaseCommand{
         if($this->answer) {
             $this->setLang($message);
         } else {
-            $this->setIsAnswer();
-            $btn = [['back'], ['ru', 'en']];
+            StateStorageHelper::setIsAnswer();
+            $btn = [['back'], array_values(\Yii::$app->params['languages'])];
             $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
@@ -25,13 +26,13 @@ class SetLangCommand extends BaseCommand{
     }
 
     protected function setLang($message){
-        if(Users::setOption('lang', $message->text, $message->chat->id)){
+        if(Users::setOption('lang', \Yii::$app->params[$message->text], $message->chat->id)){
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 'text' => 'Language ' . $message->text . ' was set successfully...',
             ]);
 
-            $this->unsetIsAnswer();
+            StateStorageHelper::unsetIsAnswer();
             return true;
         }
 

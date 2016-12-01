@@ -2,6 +2,7 @@
 
 namespace app\modules\api\commands;
 
+use app\modules\api\helpers\StateStorageHelper;
 use app\modules\api\models\Users;
 
 class SetCityCommand extends BaseCommand{
@@ -11,7 +12,7 @@ class SetCityCommand extends BaseCommand{
         if($this->answer) {
             $this->setCity($this->update->message);
         } else {
-            $this->setIsAnswer();
+            StateStorageHelper::setIsAnswer();
             $btn = [['back']];
             $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true]);
 
@@ -38,14 +39,13 @@ class SetCityCommand extends BaseCommand{
                 'chat_id' => $message->chat->id,
                 'text' => 'City ' . $message->text . ' was successfully set...',
             ]);
-            $this->unsetIsAnswer();
+            StateStorageHelper::unsetIsAnswer();
         } else {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 'text' => 'City ' . $message->text . ' is not set, something wrong... try again',
             ]);
         }
-
     }
 
     private function checkCity($city){
