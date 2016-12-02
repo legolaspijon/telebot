@@ -7,7 +7,7 @@ return [
     "Current Settings:" => "Текущие настройки:",
     "City" => "Город",
     "Language" => "Язык",
-    "Units of measurement" => "Ед. измерения:",
+    "Units of measurement" => "Ед. измерения",
     "Notification" => "Уведомления",
     "Choose language..." => "Выберите язык...",
     "Measurement '{text}' was set successfully..." => "Ед. Измерения '{text}' успешно установлены..."

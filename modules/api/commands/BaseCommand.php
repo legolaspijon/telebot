@@ -6,7 +6,7 @@ use app\modules\api\models\Users;
 abstract class BaseCommand {
 
     /**
-     * @var $args array of text & beforeCommand
+     * @var $args
      * */
     public $answer;
 
@@ -20,8 +20,7 @@ abstract class BaseCommand {
      * */
     public $user;
 
-    public function __construct($update, $user, $answer = null)
-    {
+    public function __construct($update, $user, $answer = null) {
         $this->answer = $answer;
         $this->update = $update;
         $this->user = $user;

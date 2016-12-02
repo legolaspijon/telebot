@@ -1,6 +1,7 @@
 <?php
 
 namespace app\modules\api\models;
+use app\modules\api\helpers\StateStorageHelper;
 
 /**
  * This is the model class for table "users".
@@ -33,17 +34,8 @@ class Users extends \yii\db\ActiveRecord
             [['first_name', 'last_name'], 'string', 'max' => 60],
             [['measurement'], 'string', 'max' => 1],
             [['city'], 'string', 'max' => 255],
-            [['lang'], 'in', 'range' => [array_keys(\Yii::$app->params['languages'])]],
+            [['lang'], 'in', 'range' => array_keys(\Yii::$app->params['languages'])],
         ];
-    }
-
-    public function validateLang()
-    {
-        if(!in_array($this->lang, ['ru', 'en'])) {
-            $this->addError('lang', 'not correct');
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -66,12 +58,14 @@ class Users extends \yii\db\ActiveRecord
      * Save option
      * @param $option string
      * @param $value string
+     * @param $chat_id integer
      * @return bool
      * */
     public static function setOption($option, $value, $chat_id)
     {
         $user = self::findOne(['chat_id' => $chat_id]);
         $user->{$option} = $value;
+        StateStorageHelper::setUser($user);
 
         return $user->save();
     }

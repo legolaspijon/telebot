@@ -3,6 +3,8 @@
 namespace app\modules\api\helpers;
 
 
+use app\modules\api\models\Users;
+
 class StateStorageHelper {
 
     static public function isAnswer(){
@@ -32,7 +34,8 @@ class StateStorageHelper {
         $session = \Yii::$app->session;
         if ($session->has('state')) {
             $state = $session->get('state');
-            if (count($state) > 1 && $state != $currentCommand) {
+            if(end($state) == $currentCommand) return;
+            if (count($state) > 1) {
                 array_shift($state);
                 array_push($state, $currentCommand);
             } else {
@@ -42,5 +45,13 @@ class StateStorageHelper {
             return;
         }
         $session->set('state', [$currentCommand]);
+    }
+
+    static public function getUser() {
+        return \Yii::$app->session->get('user', false);
+    }
+
+    static public function setUser(Users $user) {
+        \Yii::$app->session->set('user', serialize($user));
     }
 }

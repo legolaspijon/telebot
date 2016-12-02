@@ -8,14 +8,13 @@ use app\modules\api\models\Users;
 class SetLangCommand extends BaseCommand{
 
     public function execute(){
-
         $message = $this->update->message;
 
         if($this->answer) {
             $this->setLang($message);
         } else {
             StateStorageHelper::setIsAnswer();
-            $btn = [['back'], array_values(\Yii::$app->params['languages'])];
+            $btn = [array_values(\Yii::$app->params['languages'])];
             $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
@@ -26,7 +25,7 @@ class SetLangCommand extends BaseCommand{
     }
 
     protected function setLang($message){
-        if(Users::setOption('lang', \Yii::$app->params[$message->text], $message->chat->id)){
+        if(Users::setOption('lang', array_search($message->text, \Yii::$app->params['languages']), $message->chat->id)){
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 'text' => 'Language ' . $message->text . ' was set successfully...',

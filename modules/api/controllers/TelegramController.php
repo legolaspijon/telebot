@@ -4,12 +4,12 @@ namespace app\modules\api\controllers;
 
 use app\modules\api\commands\BaseCommand;
 use app\modules\api\helpers\StateStorageHelper;
+use app\modules\api\helpers\YahooWeatherHelper;
 use app\modules\api\models\Users;
 use yii\base\Exception;
 use yii\web\Controller;
 
-class TelegramController extends Controller
-{
+class TelegramController extends Controller {
     /**
      * namespace where commands places
      * @var $commandClassNamespace string
@@ -63,7 +63,6 @@ class TelegramController extends Controller
         'tomorrow' => 'ShowWeatherTomorrowCommand',
         '5 days' => 'ShowWeatherFiveCommand',
 
-    //
         '/hello' => 'HelloCommand',
         '/start' => 'StartCommand',
         '/help' => 'HelpCommand',
@@ -75,13 +74,17 @@ class TelegramController extends Controller
     public $user;
 
 
-    public function beforeAction($action)
-    {
-//        \Yii::$app->session->remove('state');
-//        \Yii::$app->session->remove('isAnswer');exit;
+    public function beforeAction($action) {
+//        var_dump(\Yii::$app->session->remove('state'));
+//        var_dump(\Yii::$app->session->remove('isAnswer'));
+//        var_dump(\Yii::$app->session->remove('user'));
+//        exit;
         $update = \Yii::$app->telegram->getUpdates()->result;
         $this->update = array_pop($update);
-        $this->user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
+        if(($this->user = unserialize(StateStorageHelper::getUser())) === false){
+            $this->user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
+            StateStorageHelper::setUser($this->user);
+        }
         if($this->user === null){
             (new Users([
                 'lang' => $this->defaultLang,
@@ -102,10 +105,10 @@ class TelegramController extends Controller
     /**
      * Telegram send own updates here
      * */
-    public function actionWebHook()
-    {
+    public function actionWebHook() {
+
         $answer = null;
-        if(StateStorageHelper::isAnswer()){
+        if (StateStorageHelper::isAnswer()) {
             $command = StateStorageHelper::getCurrentState();
             $answer = $this->update->message->text;
             if($answer == 'back') {
@@ -123,8 +126,7 @@ class TelegramController extends Controller
      * @var $answer string
      * @throws Exception
      * */
-    protected function createCommand($c, $answer = null)
-    {
+    protected function createCommand($c, $answer = null) {
         $command = $this->checkCommand($c, $answer);
         if (!$command) return;
         if ($command instanceof BaseCommand) {
@@ -137,28 +139,56 @@ class TelegramController extends Controller
     }
 
     /**
-     * @param $commands array
+     * @param $inputCommand array
      * @param $answer string
      * @return BaseCommand|false
      * */
-    public function checkCommand($commands, $answer = null)
+    public function checkCommand($inputCommand, $answer = null)
     {
-        if ($commands == null) {
-            return false;
+        if (\Yii::$app->language == $this->defaultLang) {
+            $command = $this->getDefaultCommand($inputCommand);
+        } else {
+            $localeCommand = $this->getLocaleCommand($inputCommand);
+            $command = !$localeCommand ? $this->getDefaultCommand($inputCommand) : $localeCommand;
         }
-        if ($commands == 'back' || $answer == 'back') {
-            $commands = StateStorageHelper::getStateBefore();
+
+        if ($inputCommand == 'back' || $answer == 'back') {
+            $command = StateStorageHelper::getStateBefore();
             $answer = null;
         }
-        foreach ($this->commands as $command => $class) {
-            $commands = strtolower($commands);
-            if (preg_match("~(\B)?$command\b~", $commands)) {
-                $this->currentCommand = $command;
-                $classNamespace = $this->commandClassNamespace . $this->commands[$command];
+
+        if($command) {
+            $this->currentCommand = $command;
+            $classNamespace = $this->commandClassNamespace . $this->commands[$command];
+            if(class_exists($classNamespace)){
 
                 return new $classNamespace($this->update, $this->user, $answer);
             }
         }
+
         return false;
+    }
+
+    public function getDefaultCommand($inputCommand) {
+        foreach ($this->commands as $command => $class) {
+            if ($this->searchCommand($command, $inputCommand)) {
+                return $command;
+            }
+        }
+        return false;
+    }
+
+
+    public function getLocaleCommand($inputCommand) {
+        foreach (\Yii::$app->params['commandsLabels'][\Yii::$app->language] as $command => $locale) {
+            if ($this->searchCommand($locale, $inputCommand)) {
+                return $command;
+            }
+        }
+        return false;
+    }
+
+    public function searchCommand($searchCommand, $searchWhere) {
+        return preg_match("~(\B)?$searchCommand\b~iu", $searchWhere);
     }
 }
