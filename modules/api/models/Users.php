@@ -32,7 +32,7 @@ class Users extends \yii\db\ActiveRecord
         return [
             [['chat_id'], 'integer'],
             [['first_name', 'last_name'], 'string', 'max' => 60],
-            [['measurement'], 'string', 'max' => 1],
+            [['measurement'], 'in', 'range' => ['F', 'C']],
             [['city'], 'string', 'max' => 255],
             [['lang'], 'in', 'range' => array_keys(\Yii::$app->params['languages'])],
         ];

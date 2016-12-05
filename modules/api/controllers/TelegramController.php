@@ -51,17 +51,17 @@ class TelegramController extends Controller {
      * */
     public $commands = [
     // Settings
-        'settings' => 'SettingsCommand',
-        'measurement' => 'SetMeasurementCommand',
-        'city' => 'SetCityCommand',
-        'language' => 'SetLangCommand',
-        'notification' => 'SetNotificationCommand',
+        '/settings' => 'SettingsCommand',
+        '/measurement' => 'SetMeasurementCommand',
+        '/city' => 'SetCityCommand',
+        '/language' => 'SetLangCommand',
+        '/notification' => 'SetNotificationCommand',
         '/back' => 'BackCommand',
 
     // Show weather for:
-        'today' => 'ShowWeatherTodayCommand',
-        'tomorrow' => 'ShowWeatherTomorrowCommand',
-        '5 days' => 'ShowWeatherFiveCommand',
+        '/today' => 'ShowWeatherTodayCommand',
+        '/tomorrow' => 'ShowWeatherTomorrowCommand',
+        '/5 days' => 'ShowWeatherFiveCommand',
 
         '/hello' => 'HelloCommand',
         '/start' => 'StartCommand',
@@ -75,23 +75,24 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
-//        var_dump(\Yii::$app->session->remove('state'));
-//        var_dump(\Yii::$app->session->remove('isAnswer'));
-//        var_dump(\Yii::$app->session->remove('user'));
-//        exit;
+//        var_dump(\Yii::$app->session->get('state'));
+//        \Yii::$app->session->remove('state');
+//        \Yii::$app->session->remove('isAnswer');exit;
         $update = \Yii::$app->telegram->getUpdates()->result;
         $this->update = array_pop($update);
-        if(($this->user = unserialize(StateStorageHelper::getUser())) === false){
-            $this->user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
-            StateStorageHelper::setUser($this->user);
-        }
+//        if(($this->user = unserialize(StateStorageHelper::getUser())) === false){
+//            $this->user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
+//            StateStorageHelper::setUser($this->user);
+//        }
+//        var_dump($this->user);exit;
+        $this->user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
         if($this->user === null){
             (new Users([
                 'lang' => $this->defaultLang,
-                'measurement' => $this->measurement,
-                'chat_id' => $this->chat_id,
-                'first_name' => $this->first_name,
-                'last_name' => $this->last_name,
+                'measurement' => $this->defaultMeasurement,
+                'chat_id' => $this->update->message->chat->id,
+                'first_name' => $this->update->message->from->first_name,
+                'last_name' => $this->update->message->from->last_name,
             ]))->save();
 
             \Yii::$app->language = $this->defaultLang;
@@ -106,7 +107,6 @@ class TelegramController extends Controller {
      * Telegram send own updates here
      * */
     public function actionWebHook() {
-
         $answer = null;
         if (StateStorageHelper::isAnswer()) {
             $command = StateStorageHelper::getCurrentState();
@@ -117,8 +117,22 @@ class TelegramController extends Controller {
         } else {
             $command = $this->update->message->text;
         }
+        if($command == '/start') {
+            $this->setStart();
+        }
 
         $this->createCommand($command, $answer);
+    }
+
+
+    private $_start = false;
+
+    private function setStart() {
+        $this->_start = true;
+    }
+
+    public function isStart() {
+        return $this->_start;
     }
 
     /**
@@ -130,7 +144,7 @@ class TelegramController extends Controller {
         $command = $this->checkCommand($c, $answer);
         if (!$command) return;
         if ($command instanceof BaseCommand) {
-            StateStorageHelper::setStates($this->currentCommand);
+            StateStorageHelper::setStates($this->currentCommand, $this->isStart());
             var_dump(\Yii::$app->session->get('state'));
             $command->execute();
         } else {
@@ -145,14 +159,10 @@ class TelegramController extends Controller {
      * */
     public function checkCommand($inputCommand, $answer = null)
     {
-        if (\Yii::$app->language == $this->defaultLang) {
-            $command = $this->getDefaultCommand($inputCommand);
-        } else {
-            $localeCommand = $this->getLocaleCommand($inputCommand);
-            $command = !$localeCommand ? $this->getDefaultCommand($inputCommand) : $localeCommand;
-        }
-
+        $localeCommand = $this->getLocaleCommand($inputCommand);
+        $command = !$localeCommand ? $this->getDefaultCommand($inputCommand) : $localeCommand;
         if ($inputCommand == 'back' || $answer == 'back') {
+            StateStorageHelper::back();
             $command = StateStorageHelper::getStateBefore();
             $answer = null;
         }
@@ -161,7 +171,6 @@ class TelegramController extends Controller {
             $this->currentCommand = $command;
             $classNamespace = $this->commandClassNamespace . $this->commands[$command];
             if(class_exists($classNamespace)){
-
                 return new $classNamespace($this->update, $this->user, $answer);
             }
         }

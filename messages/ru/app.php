@@ -10,5 +10,15 @@ return [
     "Units of measurement" => "Ед. измерения",
     "Notification" => "Уведомления",
     "Choose language..." => "Выберите язык...",
-    "Measurement '{text}' was set successfully..." => "Ед. Измерения '{text}' успешно установлены..."
+    "Measurement '{text}' was set successfully..." => "Ед. Измерения '{text}' успешно установлены...",
+    'Enter the city' => 'Введите город',
+    'City {text} does not exist' => 'Город {text} не существует',
+    'City {text} was successfully set...' => 'Город {text} успешно установлен',
+    'City {text} is not set, something wrong... try again' => 'Город {text} не установлен, что то не так, попробуйте снова',
+    '{language} language was set successfully...' => '{language} язык успешно установлен',
+    '{language} language was not set, something wrong...' => '{language} язык не установлен, что то не так, попробуйте снова',
+    'select units...' => 'Выберите ед. измерения',
+    'Units \'{text}\' was set successfully...' => 'Единици измерения \'{text}\' были успешно установлены',
+    'Units \'{text}\' was not set, something wrong...' => 'Единици измерения \'{text}\' не установлены, что то не так, попробуйте снова',
+
 ];

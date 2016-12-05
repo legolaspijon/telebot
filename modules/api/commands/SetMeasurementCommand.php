@@ -19,7 +19,7 @@ class SetMeasurementCommand extends BaseCommand
             $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => 'Choose measurement...',
+                'text' => \Yii::t("app", 'select units...'),
                 'reply_markup' => $keyboard
             ]);
         }
@@ -30,7 +30,7 @@ class SetMeasurementCommand extends BaseCommand
         if (Users::setOption('measurement', $message->text, $message->chat->id)) {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => \Yii::t("app", "Measurement '{text}' was set successfully...", ['text' => $message->text]),
+                'text' => \Yii::t("app", "Units '{text}' was set successfully...", ['text' => $message->text]),
             ]);
 
             StateStorageHelper::unsetIsAnswer();
@@ -39,7 +39,7 @@ class SetMeasurementCommand extends BaseCommand
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
-            'text' => \Yii::t("app", 'Measurement {text} was not set, something wrong...', ['text' => $message->text]),
+            'text' => \Yii::t("app", 'Units {text} was not set, something wrong...', ['text' => $message->text]),
         ]);
 
         return false;

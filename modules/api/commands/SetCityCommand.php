@@ -8,17 +8,18 @@ use app\modules\api\models\Users;
 class SetCityCommand extends BaseCommand{
 
     public function execute(){
+        $btnLabel = \Yii::$app->params['commandsLabels'][\Yii::$app->language];
         $message = $this->update->message;
         if($this->answer) {
             $this->setCity($this->update->message);
         } else {
             StateStorageHelper::setIsAnswer();
-            $btn = [['back']];
+            $btn = [[$btnLabel['/back']]];
             $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true]);
 
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => 'Enter the city',
+                'text' => \Yii::t('app', 'Enter the city'),
                 'reply_markup' => $keyboard,
             ]);
         }
@@ -29,21 +30,22 @@ class SetCityCommand extends BaseCommand{
         if(!$this->checkCity($message->text)) {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => 'City ' . $message->text . ' does not exist',
+                'text' => \Yii::t('app', 'City {text} does not exist', ['text' => $message->text]),
             ]);
             return;
         }
 
-        if(Users::setOption('city', strtolower($message->text), $message->chat->id)){
+        if(Users::setOption('city', $message->text, $message->chat->id)){
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => 'City ' . $message->text . ' was successfully set...',
+                'text' => \Yii::t('app', 'City {text} was successfully set...', ['text' => $message->text]),
             ]);
             StateStorageHelper::unsetIsAnswer();
         } else {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => 'City ' . $message->text . ' is not set, something wrong... try again',
+                'text' =>  \Yii::t('app', 'City {text} is not set, something wrong... try again', ['text' => $message->text]),
+
             ]);
         }
     }
@@ -51,11 +53,13 @@ class SetCityCommand extends BaseCommand{
     private function checkCity($city){
         $countries = simplexml_load_file('https://pogoda.yandex.ru/static/cities.xml');
         foreach ($countries->country as $cities) {
-            foreach ($cities->city as $xmlcity)
-                if(mb_strtolower($xmlcity) == mb_strtolower($city)) {
+            foreach ($cities->city as $xmlcity) {
+                if (mb_strtolower($xmlcity, "UTF-8") == mb_strtolower($city, "UTF-8")) {
                     return true;
                 }
+            }
         }
+
         return false;
     }
 }
