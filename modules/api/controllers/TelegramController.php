@@ -145,7 +145,7 @@ class TelegramController extends Controller {
         if (!$command) return;
         if ($command instanceof BaseCommand) {
             StateStorageHelper::setStates($this->currentCommand, $this->isStart());
-            var_dump(\Yii::$app->session->get('state'));
+            //var_dump(\Yii::$app->session->get('state'));
             $command->execute();
         } else {
             throw new Exception('Command class must extends BaseCommand');

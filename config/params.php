@@ -30,7 +30,8 @@ return [
             '/5 days' => 'for 5 days',
         ],
     ],
-    'emoji' => [
-
-    ],
+    'units' => [
+        'C' => 'metric',
+        'F' => 'imperial'
+    ]
 ];
