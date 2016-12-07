@@ -15,7 +15,6 @@ class Module extends \yii\base\Module {
                 'format' => 'json'
             ]
         ]);
-
         parent::init();
     }
 }

@@ -6,22 +6,25 @@ class ShowWeatherFiveCommand extends BaseCommand {
 
     public function execute()
     {
-        $unit = $this->user->measurement;
-        $weathers = \Yii::$app->weather->getWeatherForFiveDays($this->user->city, $this->user->lang);
+        $units = $this->user->measurement == 'C' ? 'metric' : 'imperial';
+        $weather = \Yii::$app->weather->getForecast($this->user->city, [
+            'lang' => $this->user->lang,
+            'units' => $units
+        ], 5);
+
         $text = '';
-        foreach ($weathers['list'] as $weather) {
-            $text .= "\n_" . "Date " . date('m/d l', $weather['dt']) ."_";
-            $text .= sprintf("\n %d %s ... %d %s", $weather['temp']['min'] , $unit , $weather['temp']['max'], $unit, $weather['weather'][0]['description']);
-            $text .= sprintf("\n *Morning: * %d %s", $weather['temp']['morn'], $unit);
-            $text .= sprintf("\n *Day: * %d %s", $weather['temp']['day'], $unit);
-            $text .= sprintf("\n *Evening: * %d %s", $weather['temp']['eve'], $unit);
+        foreach ($weather['list'] as $weather) {
+            $text .= "\n" . "<i>For " . date('m/d l', $weather['dt']) ."</i>";
+            $text .= sprintf("\n %d...%d &deg;%s - %s", $weather['temp']['min'], $weather['temp']['max'], $this->user->measurement, $weather['weather'][0]['description']);
             $text .= "\n-----------\n";
         }
+
+        $text = html_entity_decode($text);
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $this->update->message->chat->id,
             'text' => $text,
-            'parse_mode' => 'Markdown',
+            'parse_mode' => 'HTML',
         ]);
     }
 }

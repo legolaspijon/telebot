@@ -4,61 +4,79 @@ namespace app\modules\api\components;
 
 use yii\base\Component;
 
-class OpenWeather extends Component implements WeatherInterface {
+class OpenWeather extends Component {
 
+
+    /**
+     * API key
+     * */
     public $appId;
+
+    /**
+     * Format response json|xml
+     * */
     public $format;
+
 
     const BASE_URL = 'http://api.openweathermap.org/data/2.5';
 
-    public function getWeatherForToday($city, $lang) {
-        $forecast = $this->getWeather([
-            'appId' => $this->appId,
-            'format' => $this->format,
-            'q' => $city,
-            'lang' => $lang,
-            'units' => 'metric'
-        ]);
+    /**
+     * Get current weather
+     * @param $city string
+     * @param $params array
+     * @return array of response
+     * */
+    public function getWeather($city, $params){
 
-        return $forecast['list'][0];
-    }
-
-    public function getWeatherForTomorrow($city, $lang, $units) {
-        $forecast = $this->getWeather([
-            'appId' => $this->appId,
-            'format' => $this->format,
-            'q' => $city,
-            'lang' => $lang,
-            'units' => 'metric'
-        ]);
-
-        return $forecast['list'][1];
-    }
-
-    public function getWeatherForFiveDays($city, $lang) {
-        $forecast = $this->getWeather([
-            'appId' => $this->appId,
-            'format' => $this->format,
-            'q' => $city,
-            'lang' => $lang,
-            'units' => 'metric'
-        ]);
-
-        return $forecast;
+        return $this->buildQuery('/weather?', $city, $params);
     }
 
     /**
-     * Get response from Open Weather API
-     * @param $params
+     * Get forecast daily weather
+     * @param $city string
+     * @param $params array
+     * @param $days integer
+     * @throws \Exception
+     * @return array of response
+     * */
+    public function getForecast($city, $params, $days = null) {
+        if($days <=16 && $days >= 1) {
+            $params['cnt'] = $days;
+        } else {
+            throw new \Exception('Days must by <= 16');
+        }
+
+        return $this->buildQuery('/forecast/daily?', $city, $params);
+    }
+
+    /**
+     * Build query
+     * @param $query string (forecast or current weather)
+     * @param $city string
+     * @param array
      * @return array
      * */
-    public function getWeather($params){
-        $url = self::BASE_URL . "/forecast/daily?" . http_build_query($params);
+    public function buildQuery($query, $city, $params) {
+        $params['appid'] = $this->appId;
+        $params['format'] = $this->format;
+        $params['q'] = $city;
+
+        return $this->curl_query(self::BASE_URL . $query . http_build_query($params));
+    }
+    
+
+    /**
+     * Request to Open Weather API
+     * @param $url string
+     * @return array
+     * */
+    public function curl_query($url) {
+        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $result = curl_exec($ch);
-
-        return json_decode($result, true);
+        $response = curl_exec($ch);
+        
+        return json_decode($response, true);
     }
 
 }
