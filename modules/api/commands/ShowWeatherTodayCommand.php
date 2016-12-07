@@ -6,26 +6,41 @@ class ShowWeatherTodayCommand extends BaseCommand {
 
     public function execute()
     {
-        $units = $this->user->measurement == 'C' ? 'metric' : 'imperial';
-        $todayWeather = \Yii::$app->weather->getForecast($this->user->city, [
-            'units' => $units,
-            'lang' => $this->user->lang
-        ], 1)['list'][0];
+        $unit = $this->user->measurement;
+        $emoji = \Yii::$app->params['emoji']['weather'];
+        $units = \Yii::$app->params['units'][$unit];
 
-        $currentWeather = \Yii::$app->weather->getWeather($this->user->city, [
-            'units' => $units,
-            'lang' => $this->user->lang
-        ]);
+        /**
+         * Get weather for today
+         * */
+        $todayWeather = \Yii::$app->weather->getWeatherForTodayOrTomorrow($this->user->city, ['units' => $units, 'lang' => $this->user->lang], 'today');
 
-        $text = sprintf("<i>Today, %s</i>", date('m/d l', $todayWeather['dt']));
-        $text .= sprintf("\n%d...%d &deg;%s - %s", $todayWeather['temp']['min'], $todayWeather['temp']['max'], $this->user->measurement, $todayWeather['weather'][0]['description']);
-        $text .= sprintf("\n<b>Now %d &deg;%s wind %d</b>", $currentWeather['main']['temp'], $this->user->measurement, $currentWeather['wind']['speed']);
-        $text = html_entity_decode($text);
+        /**
+         * Get current weather
+         * */
+        $currentWeather = \Yii::$app->weather->getWeather($this->user->city, ['units' => $units, 'lang' => $this->user->lang]);
+
+        /**
+         * Formatting message
+         * */
+        $fEmoji = json_decode('"' .$emoji[$todayWeather['weather'][0]['icon']] . '"');
+        $cEmoji = json_decode('"' .$emoji[$currentWeather['weather'][0]['icon']]. '"');
+
+        $dayLocal = \Yii::t('app', date('l', $todayWeather['dt']));
+        $text = "\n<b>". \Yii::t('app', "City: {city}", ['city' => $this->user->city]) . "</b>";
+        $text .= "\n<i>". \Yii::t('app', "Today, {date} {day}", ['date' => date('m/d', $todayWeather['dt']), 'day' => $dayLocal]) ."</i>";
+        $text .= "\n$fEmoji {$todayWeather['temp']['morn']}...{$todayWeather['temp']['night']} &deg;$unit - {$todayWeather['weather'][0]['description']}";
+        $text .= "\n<b>". \Yii::t('app', "Now {cEmoji} {temp} °{unit2} Wind {speed} m/s", [
+            'cEmoji' => $cEmoji,
+            'temp' => $currentWeather['main']['temp'],
+            'unit2' => $unit,
+            'speed' => $currentWeather['wind']['speed']
+        ]). "</b>";
 
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $this->update->message->chat->id,
-            'text' => $text,
+            'text' => html_entity_decode($text),
             'parse_mode' => 'HTML',
         ]);
     }

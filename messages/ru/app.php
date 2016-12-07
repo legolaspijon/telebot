@@ -7,7 +7,7 @@ return [
     "Current Settings:" => "Текущие настройки:",
     "City" => "Город",
     "Language" => "Язык",
-    "Units of measurement" => "Ед. измерения",
+    "Units" => "Ед. измерения",
     "Notification" => "Уведомления",
     "Choose language..." => "Выберите язык...",
     "Measurement '{text}' was set successfully..." => "Ед. Измерения '{text}' успешно установлены...",
@@ -20,5 +20,16 @@ return [
     'select units...' => 'Выберите ед. измерения',
     'Units \'{text}\' was set successfully...' => 'Единици измерения \'{text}\' были успешно установлены',
     'Units \'{text}\' was not set, something wrong...' => 'Единици измерения \'{text}\' не установлены, что то не так, попробуйте снова',
-
+    'Monday' => 'Понедельник',
+    'Tuesday' => 'Вторник',
+    'Wednesday'	=> 'Среда',
+    'Thursday' => 'Четверг',
+    'Friday' => 'Пятница',
+    'Saturday' => 'Суббота',
+    'Sunday' => 'Воскресенье',
+    "City: {city}" => "Город: {city}",
+    "Today, {date} {day}" => "Сегодня, {date} {day}",
+    "Now {cEmoji} {temp} °{unit2} Wind {speed} m/s" => "Сейчас {cEmoji} {temp} °{unit2} Ветер {speed} м/с",
+    "\n<i>Tomorrow {date} {day}</i>" => "\n<i>Завтра {date} {day}</i>",
+    "\n<i>For {date} {day}</i>" => "\n<i>Погода на {date} {day}</i>"
 ];

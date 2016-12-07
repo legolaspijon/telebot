@@ -6,22 +6,34 @@ class ShowWeatherTomorrowCommand extends BaseCommand {
 
     public function execute()
     {
-        $units = $this->user->measurement == 'C' ? 'metric' : 'imperial';
-        $weather = \Yii::$app->weather->getForecast($this->user->city, [
-            'lang' => $this->user->lang,
-            'units' => $units
-        ], 2)['list'][1];
+        $unit = $this->user->measurement;                   // user units label
+        $units = \Yii::$app->params['units'][$unit];        // request units imperial|metric
+        $emoji = \Yii::$app->params['emoji']['weather'];    // emoji to weather text
 
-        $text = "\n" . "<i>Tomorrow " . date('m/d l', $weather['dt']) ."</i>";
-        $text .= sprintf("\n %d...%d &deg;%s - %s", $weather['temp']['min'], $weather['temp']['max'], $this->user->measurement, $weather['weather'][0]['description']);
-//        $text .= sprintf("\n *Morning: * %d &deg;%s", $weather['temp']['morn'], $this->user->measurement);
-//        $text .= sprintf("\n *Day: * %d &deg;%s", $weather['temp']['day'], $this->user->measurement);
-//        $text .= sprintf("\n *Evening: * %d &deg;%s", $weather['temp']['eve'], $this->user->measurement);
+        /**
+         * Get weather for tomorrow
+         * */
+        $weather = \Yii::$app->weather->getWeatherForTodayOrTomorrow($this->user->city, ['units' => $units, 'lang' => $this->user->lang], 'tomorrow');
 
-        $text = html_entity_decode($text);
+        /**
+         * Formatting data
+         * */
+        $emoji = json_decode('"' .$emoji[$weather['weather'][0]['icon']] .'"');
+        $dayLocale = \Yii::t('app', date('l', $weather['dt']));
+        $text = "\n<b>". \Yii::t('app', "City: {city}", ['city' => $this->user->city]) ."</b>";
+        $text .= "\n<i>". \Yii::t('app', "Tomorrow {date} {day}", ['date' => date('m/d', $weather['dt']), 'day' => $dayLocale]) ."</i>";
+        $text .= "\n". $emoji . "{$weather['temp']['day']}...{$weather['temp']['night']} &deg;$unit - {$weather['weather'][0]['description']}";
+
+/*        $text .= sprintf("\n *Morning: * %d &deg;%s", $weather['temp']['morn'], $this->user->measurement);
+        $text .= sprintf("\n *Day: * %d &deg;%s", $weather['temp']['day'], $this->user->measurement);
+        $text .= sprintf("\n *Evening: * %d &deg;%s", $weather['temp']['eve'], $this->user->measurement);*/
+
+        /**
+         * Send weather text
+         * */
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $this->update->message->chat->id,
-            'text' => $text,
+            'text' => html_entity_decode($text),
             'parse_mode' => 'HTML',
         ]);
     }

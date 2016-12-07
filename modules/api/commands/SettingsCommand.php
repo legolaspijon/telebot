@@ -2,29 +2,44 @@
 
 namespace app\modules\api\commands;
 
-use app\modules\api\models\Users;
-
 class SettingsCommand extends BaseCommand
 {
     public function execute()
     {
-        $btnLabels = \Yii::$app->params['commandsLabels'][\Yii::$app->language];
         $message = $this->update->message;
-        $text = \Yii::t("app", "Current Settings:");
-        $text .= "\n*". \Yii::t("app", "City") .":* " . $this->user->city;
-        $text .= "\n*". \Yii::t("app", "Language") .":* " . $this->user->lang;
-        $text .= "\n*". \Yii::t("app", "Units of measurement") .":* " . $this->user->measurement;
-        $text .= "\n*". \Yii::t("app", "Notification") .":* " . 'notification here';
-        $text .= "\n\n*". \Yii::t('app', "Select an option...") ."*";
-        $opz = [['back'], [$btnLabels["/city"], $btnLabels["/measurement"]], [$btnLabels["/language"], $btnLabels["/notification"]]];
-        $keyboard = ["keyboard" => $opz, "resize_keyboard" => true];
-        $keyboard = json_encode($keyboard);
+        $text = "\n<b>". \Yii::t("app", "Current Settings:") ."</b>";
+        $text .= "\n<b>". \Yii::t("app", "City") .":</b> " . $this->user->city;
+        $text .= "\n<b>". \Yii::t("app", "Language") .":</b> " . \Yii::$app->params['languages'][$this->user->lang];
+        $text .= "\n<b>". \Yii::t("app", "Units") .":</b> &deg;" . $this->user->measurement;
+        $text .= "\n\n<b>". \Yii::t('app', "Select an option...") ."</b>";
+        $text = html_entity_decode($text);
+
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
             'text' => $text,
-            'parse_mode' => 'Markdown',
-            'reply_markup' => $keyboard
+            'parse_mode' => 'HTML',
+            'reply_markup' => $this->keyboard()
         ]);
+    }
+
+    public function keyboard() {
+        $btnLabels = \Yii::$app->params['commandsLabels'][\Yii::$app->language];
+        $menuEmoji = \Yii::$app->params['emoji']['menu'];
+        $emojiEncoded = [];
+
+        foreach ($menuEmoji as $label => $emoji) {
+            $emojiEncoded[$label] = json_decode('"'. $emoji .'"');
+        }
+
+        $btns = [
+            [$emojiEncoded['back']." ".$btnLabels['/back']],
+            [$emojiEncoded['location']." ".$btnLabels["/city"],  $emojiEncoded['units']." ".$btnLabels["/measurement"]],
+            [$emojiEncoded['language']." ".$btnLabels["/language"]]
+        ];
+
+        $keyboard = ["keyboard" => $btns, "resize_keyboard" => true];
+
+        return json_encode($keyboard);
     }
 }

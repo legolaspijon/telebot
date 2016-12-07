@@ -75,9 +75,13 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
+
+
 //        var_dump(\Yii::$app->session->get('state'));
+//        var_dump(\Yii::$app->session->get('isAnswer'));
 //        \Yii::$app->session->remove('state');
-//        \Yii::$app->session->remove('isAnswer');exit;
+//        \Yii::$app->session->remove('isAnswer');
+//exit;
         $update = \Yii::$app->telegram->getUpdates()->result;
         $this->update = array_pop($update);
 //        if(($this->user = unserialize(StateStorageHelper::getUser())) === false){
@@ -111,16 +115,16 @@ class TelegramController extends Controller {
         if (StateStorageHelper::isAnswer()) {
             $command = StateStorageHelper::getCurrentState();
             $answer = $this->update->message->text;
-            if($answer == 'back') {
+            if(mb_strpos($answer, 'back') !== false) {
                 StateStorageHelper::unsetIsAnswer();
             }
         } else {
             $command = $this->update->message->text;
         }
+
         if($command == '/start') {
             $this->setStart();
         }
-
         $this->createCommand($command, $answer);
     }
 
@@ -145,7 +149,7 @@ class TelegramController extends Controller {
         if (!$command) return;
         if ($command instanceof BaseCommand) {
             StateStorageHelper::setStates($this->currentCommand, $this->isStart());
-            //var_dump(\Yii::$app->session->get('state'));
+            var_dump(\Yii::$app->session->get('state'));
             $command->execute();
         } else {
             throw new Exception('Command class must extends BaseCommand');
@@ -159,9 +163,10 @@ class TelegramController extends Controller {
      * */
     public function checkCommand($inputCommand, $answer = null)
     {
-        $localeCommand = $this->getLocaleCommand($inputCommand);
+        $localeCommand = $this->getCommandAlias($inputCommand);
         $command = !$localeCommand ? $this->getDefaultCommand($inputCommand) : $localeCommand;
-        if ($inputCommand == 'back' || $answer == 'back') {
+
+        if (mb_strrpos($command.$answer, 'back') ) {
             StateStorageHelper::back();
             $command = StateStorageHelper::getStateBefore();
             $answer = null;
@@ -188,7 +193,7 @@ class TelegramController extends Controller {
     }
 
 
-    public function getLocaleCommand($inputCommand) {
+    public function getCommandAlias($inputCommand) {
         foreach (\Yii::$app->params['commandsLabels'][\Yii::$app->language] as $command => $locale) {
             if ($this->searchCommand($locale, $inputCommand)) {
                 return $command;

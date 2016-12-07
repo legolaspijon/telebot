@@ -79,4 +79,15 @@ class OpenWeather extends Component {
         return json_decode($response, true);
     }
 
+    public function getWeatherForTodayOrTomorrow($city, $params, $todayOrTomorrow = 'today') {
+        $days = 1; $getDay = 0;
+
+        if($todayOrTomorrow == 'tomorrow') {
+            $getDay = 1;
+            $days = 2;
+        }
+
+        return $this->getForecast($city, $params, $days)['list'][$getDay];
+    }
+
 }
