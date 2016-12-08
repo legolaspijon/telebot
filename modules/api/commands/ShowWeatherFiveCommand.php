@@ -10,18 +10,16 @@ class ShowWeatherFiveCommand extends BaseCommand {
         $units = \Yii::$app->params['units'][$unit];
         $emoji = \Yii::$app->params['emoji']['weather'];
 
-        $weather = \Yii::$app->weather->getForecast($this->user->city, [
+        $weatherForecast = \Yii::$app->weather->getForecast($this->user->city, [
             'lang' => $this->user->lang,
             'units' => $units
         ], 5);
 
-        $text = '';
-
-        foreach ($weather['list'] as $weather) {
-            $emoji = json_decode('"' .$emoji[$weather['weather'][0]['icon']] .'"');
+        $text = "\n<b>". \Yii::t('app', "City: {city}", ['city' => $this->user->city]) . "</b>";
+        foreach ($weatherForecast['list'] as $weather) {
             $dayLocale = \Yii::t('app', date('l', $weather['dt']));
             $text .= "\n<i>". \Yii::t('app', "For {date} {day}", ['date' => date('m/d', $weather['dt']), 'day' => $dayLocale]) ."</i>";
-            $text .= "\n" . $emoji . "{$weather['temp']['day']}...{$weather['temp']['night']} &deg;$unit - {$weather['weather'][0]['description']}\n";
+            $text .= "\n" . json_decode('"' .$emoji[$weather['weather'][0]['icon']] .'"') . "{$weather['temp']['day']}...{$weather['temp']['night']}&deg;$unit - {$weather['weather'][0]['description']}\n";
         }
 
         \Yii::$app->telegram->sendMessage([

@@ -20,6 +20,7 @@ class ShowWeatherTodayCommand extends BaseCommand {
          * */
         $currentWeather = \Yii::$app->weather->getWeather($this->user->city, ['units' => $units, 'lang' => $this->user->lang]);
 
+
         /**
          * Formatting message
          * */
@@ -29,8 +30,8 @@ class ShowWeatherTodayCommand extends BaseCommand {
         $dayLocal = \Yii::t('app', date('l', $todayWeather['dt']));
         $text = "\n<b>". \Yii::t('app', "City: {city}", ['city' => $this->user->city]) . "</b>";
         $text .= "\n<i>". \Yii::t('app', "Today, {date} {day}", ['date' => date('m/d', $todayWeather['dt']), 'day' => $dayLocal]) ."</i>";
-        $text .= "\n$fEmoji {$todayWeather['temp']['morn']}...{$todayWeather['temp']['night']} &deg;$unit - {$todayWeather['weather'][0]['description']}";
-        $text .= "\n<b>". \Yii::t('app', "Now {cEmoji} {temp} °{unit2} Wind {speed} m/s", [
+        $text .= "\n$fEmoji {$todayWeather['temp']['morn']}...{$todayWeather['temp']['night']}&deg;$unit - {$todayWeather['weather'][0]['description']}";
+        $text .= "\n<b>". \Yii::t('app', "Now {cEmoji} {temp}&deg;{unit2} Wind {speed} m/s", [
             'cEmoji' => $cEmoji,
             'temp' => $currentWeather['main']['temp'],
             'unit2' => $unit,

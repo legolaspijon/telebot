@@ -8,7 +8,6 @@ use app\modules\api\models\Users;
 class SetLangCommand extends BaseCommand{
 
     public function execute(){
-        var_dump('qwerty');
         $message = $this->update->message;
         if($this->answer) {
             if($this->setLang($message)) {
@@ -36,8 +35,7 @@ class SetLangCommand extends BaseCommand{
 
     protected function keyboard() {
         $emodji = \Yii::$app->params['emoji']['menu'];
-        $btnLabel = \Yii::$app->params['commandsLabels'][\Yii::$app->language];
-        $btn = [[$btnLabel['/back']], array_values(\Yii::$app->params['languages'])];
+        $btn = [[json_decode('"'.$emodji['back'].'"') .' '. \Yii::t('app', 'back')], array_values(\Yii::$app->params['languages'])];
 
         return json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
     }

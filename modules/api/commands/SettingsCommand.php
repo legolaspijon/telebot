@@ -15,25 +15,25 @@ class SettingsCommand extends BaseCommand
         $text = html_entity_decode($text);
 
 
-        \Yii::$app->telegram->sendMessage([
+        var_dump(\Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
             'text' => $text,
             'parse_mode' => 'HTML',
             'reply_markup' => $this->keyboard()
-        ]);
+        ]));
     }
 
     public function keyboard() {
         $btnLabels = \Yii::$app->params['commandsLabels'][\Yii::$app->language];
         $menuEmoji = \Yii::$app->params['emoji']['menu'];
-        $emojiEncoded = [];
 
+        $emojiEncoded = [];
         foreach ($menuEmoji as $label => $emoji) {
             $emojiEncoded[$label] = json_decode('"'. $emoji .'"');
         }
 
         $btns = [
-            [$emojiEncoded['back']." ".$btnLabels['/back']],
+            [json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')],
             [$emojiEncoded['location']." ".$btnLabels["/city"],  $emojiEncoded['units']." ".$btnLabels["/measurement"]],
             [$emojiEncoded['language']." ".$btnLabels["/language"]]
         ];

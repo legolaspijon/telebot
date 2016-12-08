@@ -8,13 +8,13 @@ use app\modules\api\models\Users;
 class SetCityCommand extends BaseCommand{
 
     public function execute(){
-        $btnLabel = \Yii::$app->params['commandsLabels'][\Yii::$app->language];
+        $menuEmoji = \Yii::$app->params['emoji']['menu'];
         $message = $this->update->message;
         if($this->answer) {
             $this->setCity($this->update->message);
         } else {
             StateStorageHelper::setIsAnswer();
-            $btn = [[$btnLabel['/back']]];
+            $btn = [[json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')]];
             $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true]);
 
             \Yii::$app->telegram->sendMessage([

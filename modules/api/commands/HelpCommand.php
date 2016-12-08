@@ -7,10 +7,17 @@ class HelpCommand extends BaseCommand {
 
     public function execute()
     {
-        echo "sadada";
-        $text = "Supported commands";
-        $text .= "\n/settings - setting mode";
-        $text .= "\n/help - setting mode";
+        $text = \Yii::t('app', "Supported commands");
+        $text .= "\n/settings - ". \Yii::t('app', "options");
+        $text.= "\n/start - ". \Yii::t('app', "main menu");
+        $text.= "\n/help - ". \Yii::t('app', "view supported commands");
+        $text.= "\n/settings - ". \Yii::t('app', "you can set language, city, units here");
+        $text.= "\n/city - ". \Yii::t('app', "you can set city here, typing on the keyboard");
+        $text.= "\n/language - ". \Yii::t('app', "you can choose language here");
+        $text.= "\n/measurement - ". \Yii::t('app', "set units here");
+        $text.= "\n/today - ". \Yii::t('app', "today weather");
+        $text.= "\n/tomorrow - ". \Yii::t('app', "tomorrow weather");
+        $text.= "\n/5days - ". \Yii::t('app', "weather 5 days");
 
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $this->update->message->chat->id,

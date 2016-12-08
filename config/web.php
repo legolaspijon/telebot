@@ -41,7 +41,8 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'logFile' => '@runtime/response/log.log'
+                    'logVars' => [null],
+                    'logFile' => '@runtime/logs/telegram.log',
                 ],
             ],
         ],
