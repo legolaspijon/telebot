@@ -76,6 +76,7 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
+        echo "s";exit;
 //        \Yii::$app->cache->flush();
 //        var_dump(\Yii::$app->cache->get('weather_ХаРьКов'));
 //        var_dump(\Yii::$app->cache->get('forecast_ХаРьКов'));
