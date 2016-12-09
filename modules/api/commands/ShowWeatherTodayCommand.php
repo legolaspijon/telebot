@@ -20,7 +20,6 @@ class ShowWeatherTodayCommand extends BaseCommand {
          * */
         $currentWeather = \Yii::$app->weather->getWeather($this->user->city, ['units' => $units, 'lang' => $this->user->lang]);
 
-
         /**
          * Formatting message
          * */

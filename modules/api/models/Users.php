@@ -69,4 +69,10 @@ class Users extends \yii\db\ActiveRecord
 
         return $user->save();
     }
+
+    public function beforeSave($insert)
+    {
+        var_dump(\Yii::$app->cache->flush());
+        return parent::beforeSave($insert);
+    }
 }

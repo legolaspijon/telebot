@@ -76,27 +76,33 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
+//        \Yii::$app->cache->flush();
+//        var_dump(\Yii::$app->cache->get('weather_ХаРьКов'));
+//        var_dump(\Yii::$app->cache->get('forecast_ХаРьКов'));
+
+//        exit;
 //        var_dump(\Yii::$app->session->remove('state'));
 //        var_dump(\Yii::$app->session->remove('isAnswer'));
 //        var_dump(\Yii::$app->session->remove('user'));
-//        var_dump(\Yii::$app->session->get('state'));
+//        var_dump(\Yii::$app->session->get('state'));exit;
 //        var_dump(\Yii::$app->session->get('isAnswer'));
 //        var_dump(\Yii::$app->session->get('user'));
+//        var_dump(\Yii::$app->cache->get('weather_ХаРьКов'));
 //        exit;
 
-        $update = \Yii::$app->telegram->getUpdates()->result;
-        $this->update = array_pop($update);
+        $this->update = \Yii::$app->telegram->getUpdates();
         $this->user = StateStorageHelper::getUser();
         if($this->user === false){
             $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
             if(!$user) {
-                ($this->user = new Users([
+                $this->user = new Users([
                     'lang' => $this->defaultLang,
                     'measurement' => $this->defaultMeasurement,
                     'chat_id' => $this->update->message->chat->id,
                     'first_name' => $this->update->message->from->first_name,
                     'last_name' => $this->update->message->from->last_name,
-                ]))->save();
+                ]);
+                $this->user->save();
                 StateStorageHelper::setUser($this->user);
                 \Yii::$app->language = $this->defaultLang;
             } else {
