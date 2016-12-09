@@ -13,7 +13,7 @@ class ShowWeatherTodayCommand extends BaseCommand {
         /**
          * Get weather for today
          * */
-        $todayWeather = \Yii::$app->weather->getWeatherForTodayOrTomorrow($this->user->city, ['units' => $units, 'lang' => $this->user->lang], 'today');
+        $todayWeather = \Yii::$app->weather->getTodayWeather($this->user->city, ['units' => $units, 'lang' => $this->user->lang]);
 
         /**
          * Get current weather
@@ -26,7 +26,6 @@ class ShowWeatherTodayCommand extends BaseCommand {
          * */
         $fEmoji = json_decode('"' .$emoji[$todayWeather['weather'][0]['icon']] . '"');
         $cEmoji = json_decode('"' .$emoji[$currentWeather['weather'][0]['icon']]. '"');
-
         $dayLocal = \Yii::t('app', date('l', $todayWeather['dt']));
         $text = "\n<b>". \Yii::t('app', "City: {city}", ['city' => $this->user->city]) . "</b>";
         $text .= "\n<i>". \Yii::t('app', "Today, {date} {day}", ['date' => date('m/d', $todayWeather['dt']), 'day' => $dayLocal]) ."</i>";
@@ -39,6 +38,9 @@ class ShowWeatherTodayCommand extends BaseCommand {
         ]). "</b>";
 
 
+        /**
+         * Send message
+         * */
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $this->update->message->chat->id,
             'text' => html_entity_decode($text),

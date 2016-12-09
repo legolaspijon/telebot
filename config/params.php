@@ -15,7 +15,7 @@ return [
             '/notification' => 'уведомления',
             '/today' => 'на сегодня',
             '/tomorrow' => 'на завтра',
-            '/5 days' => 'на 5 дней',
+            '/5days' => 'на 5 дней',
         ],
         'en' => [
             '/settings' => 'settings',
@@ -25,7 +25,7 @@ return [
             '/notification' => 'notification',
             '/today' => 'for today',
             '/tomorrow' => 'for tomorrow',
-            '/5 days' => 'for 5 days',
+            '/5days' => 'for 5 days',
         ],
     ],
     'units' => [

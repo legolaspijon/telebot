@@ -13,7 +13,7 @@ class ShowWeatherTomorrowCommand extends BaseCommand {
         /**
          * Get weather for tomorrow
          * */
-        $weather = \Yii::$app->weather->getWeatherForTodayOrTomorrow($this->user->city, ['units' => $units, 'lang' => $this->user->lang], 'tomorrow');
+        $weather = \Yii::$app->weather->getTomorrowWeather($this->user->city, ['units' => $units, 'lang' => $this->user->lang]);
 
         /**
          * Formatting data

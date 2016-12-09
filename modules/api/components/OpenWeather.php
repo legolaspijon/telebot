@@ -6,11 +6,11 @@ use yii\base\Component;
 
 class OpenWeather extends Component {
 
-
     /**
      * API key
      * */
     public $appId;
+
 
     /**
      * Format response json|xml
@@ -19,6 +19,7 @@ class OpenWeather extends Component {
 
 
     const BASE_URL = 'http://api.openweathermap.org/data/2.5';
+    const DEFAULT_FORECAST = 16;
 
     /**
      * Get current weather
@@ -28,26 +29,41 @@ class OpenWeather extends Component {
      * */
     public function getWeather($city, $params){
 
-        return $this->buildQuery('/weather?', $city, $params);
+        $cache = \Yii::$app->cache;
+        $weather = $cache->get("weather_$city");
+        if($weather === false) {
+            $weather = $this->buildQuery('/weather?', $city, $params);
+            $cache->add("weather_$city", $weather, 3600*3);
+        }
+
+        return $weather;
     }
+
 
     /**
      * Get forecast daily weather
      * @param $city string
      * @param $params array
      * @param $days integer
-     * @throws \Exception
-     * @return array of response
+     * @return array|bool
      * */
     public function getForecast($city, $params, $days = null) {
-        if($days <=16 && $days >= 1) {
-            $params['cnt'] = $days;
-        } else {
-            throw new \Exception('Days must by <= 16');
+        $cache = \Yii::$app->cache;
+        if($days > self::DEFAULT_FORECAST && $days < 1) {
+            \Yii::trace('Days must by <= '. self::DEFAULT_FORECAST);
+            return false;
         }
 
-        return $this->buildQuery('/forecast/daily?', $city, $params);
+        $params['cnt'] = self::DEFAULT_FORECAST;
+        $weather = $cache->get("forecast_$city");
+        if($weather === false) {
+            $weather = $this->buildQuery('/forecast/daily?', $city, $params);
+            $cache->add("forecast_$city", $weather, 3600*3);
+        }
+
+        return array_splice($weather['list'], 0, $days);
     }
+
 
     /**
      * Build query
@@ -79,15 +95,25 @@ class OpenWeather extends Component {
         return json_decode($response, true);
     }
 
-    public function getWeatherForTodayOrTomorrow($city, $params, $todayOrTomorrow = 'today') {
-        $days = 1; $getDay = 0;
 
-        if($todayOrTomorrow == 'tomorrow') {
-            $getDay = 1;
-            $days = 2;
-        }
+    /**
+     * get today weather
+     * @param $city string
+     * @param $params
+     * @return array
+     * */
+    public function getTomorrowWeather($city, $params) {
+        return $this->getForecast($city, $params, 2)[1];
+    }
 
-        return $this->getForecast($city, $params, $days)['list'][$getDay];
+    /**
+     * get tomorrow weather
+     * @param $city string
+     * @param $params
+     * @return array
+     * */
+    public function getTodayWeather($city, $params) {
+        return $this->getForecast($city, $params, 1)[0];
     }
 
 }
