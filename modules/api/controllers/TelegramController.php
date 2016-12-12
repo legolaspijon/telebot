@@ -89,7 +89,7 @@ class TelegramController extends Controller {
 //        var_dump(\Yii::$app->session->get('user'));
 //        var_dump(\Yii::$app->cache->get('weather_ХаРьКов'));
 //        exit;
-
+        \Yii::trace('EVERYTHING IS OK!!!');
         $this->update = \Yii::$app->telegram->getUpdates();
         $this->user = StateStorageHelper::getUser();
         if($this->user === false){
