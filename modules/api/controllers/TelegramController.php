@@ -4,12 +4,10 @@ namespace app\modules\api\controllers;
 
 use app\modules\api\commands\BaseCommand;
 use app\modules\api\helpers\StateStorageHelper;
-use app\modules\api\helpers\YahooWeatherHelper;
 use app\modules\api\models\Users;
-use Telegram\Bot\Objects\User;
 use yii\base\Exception;
-use yii\caching\MemCache;
-use yii\web\Controller;
+use yii\base\Response;
+use yii\rest\Controller;
 
 class TelegramController extends Controller {
     /**
@@ -76,23 +74,16 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
-//        \Yii::$app->cache->flush();
-//        var_dump(\Yii::$app->cache->get('weather_ХаРьКов'));
-//        var_dump(\Yii::$app->cache->get('forecast_ХаРьКов'));
 
-//        exit;
-//        var_dump(\Yii::$app->session->remove('state'));
-//        var_dump(\Yii::$app->session->remove('isAnswer'));
-//        var_dump(\Yii::$app->session->remove('user'));
-//        var_dump(\Yii::$app->session->get('state'));exit;
-//        var_dump(\Yii::$app->session->get('isAnswer'));
-//        var_dump(\Yii::$app->session->get('user'));
-//        var_dump(\Yii::$app->cache->get('weather_ХаРьКов'));
-//        exit;
-        \Yii::trace('Evericing is Ok!!!');
-        file_get_content('http://telegram.int.sfdevserver.com/api/telegram/web-hook');
+        // by webHook
+        $this->update = \Yii::$app->telegram->hook();
+        file_put_contents('tv2.txt', print_r($this->update, true));
         exit;
-        $this->update = \Yii::$app->telegram->getUpdates();
+
+        // by getUpdates
+//        $this->update = \Yii::$app->telegram->getUpdates()->result;
+//        $this->update = array_pop($this->update);
+
         $this->user = StateStorageHelper::getUser();
         if($this->user === false){
             $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
@@ -121,6 +112,9 @@ class TelegramController extends Controller {
      * Telegram send own updates here
      * */
     public function actionWebHook() {
+        exit;
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
         $answer = null;
 
         if (StateStorageHelper::isAnswer()) {
