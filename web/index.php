@@ -1,6 +1,6 @@
 <?php
 $updates = file_get_contents('php://input');
-file_put_contents('text.txt', $update);exit;
+file_put_contents('text.txt', $updates);exit;
 // comment out the following two lines when deployed to production
 defined('YII_DEBUG') or define('YII_DEBUG', true);
 defined('YII_ENV') or define('YII_ENV', 'dev');
