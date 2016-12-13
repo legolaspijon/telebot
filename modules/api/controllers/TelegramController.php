@@ -74,11 +74,8 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
-
         // by webHook
         $this->update = \Yii::$app->telegram->hook();
-        file_put_contents('tv2.txt', print_r($this->update, true));
-        exit;
 
         // by getUpdates
 //        $this->update = \Yii::$app->telegram->getUpdates()->result;
@@ -95,15 +92,16 @@ class TelegramController extends Controller {
                     'first_name' => $this->update->message->from->first_name,
                     'last_name' => $this->update->message->from->last_name,
                 ]);
-                $this->user->save();
+                if(!$this->user->save()) \Yii::trace('user not save', 'debug');
                 StateStorageHelper::setUser($this->user);
                 \Yii::$app->language = $this->defaultLang;
             } else {
                 $this->user = $user;
             }
         }
-
+        \Yii::trace(print_r($this->user, true), 'debug');
         \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
+        StateStorageHelper::setState(['/start']);
 
         return parent::beforeAction($action);
     }
@@ -112,7 +110,6 @@ class TelegramController extends Controller {
      * Telegram send own updates here
      * */
     public function actionWebHook() {
-        exit;
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $answer = null;
