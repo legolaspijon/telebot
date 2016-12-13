@@ -6,8 +6,7 @@ use app\modules\api\commands\BaseCommand;
 use app\modules\api\helpers\StateStorageHelper;
 use app\modules\api\models\Users;
 use yii\base\Exception;
-use yii\base\Response;
-use yii\rest\Controller;
+use yii\web\Controller;
 
 class TelegramController extends Controller {
     /**
@@ -85,19 +84,18 @@ class TelegramController extends Controller {
         if($this->user === false){
             $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
             if(!$user) {
-                $this->user = new Users([
+                $user = new Users([
                     'lang' => $this->defaultLang,
                     'measurement' => $this->defaultMeasurement,
                     'chat_id' => $this->update->message->chat->id,
                     'first_name' => $this->update->message->from->first_name,
                     'last_name' => $this->update->message->from->last_name,
                 ]);
-                if(!$this->user->save()) \Yii::trace('user not save', 'debug');
-                StateStorageHelper::setUser($this->user);
+                if(!$user->save()) \Yii::trace('user not save', 'debug');
                 \Yii::$app->language = $this->defaultLang;
-            } else {
-                $this->user = $user;
             }
+            StateStorageHelper::setUser($user);
+            $this->user = $user;
         }
         \Yii::trace(print_r($this->user, true), 'debug');
         \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
@@ -110,7 +108,6 @@ class TelegramController extends Controller {
      * Telegram send own updates here
      * */
     public function actionWebHook() {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
         $answer = null;
 
