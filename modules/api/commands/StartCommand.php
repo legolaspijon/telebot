@@ -13,10 +13,10 @@ class StartCommand extends BaseCommand
 
         $btns = [[$btnLabels['/today'], $btnLabels['/tomorrow']],[$btnLabels['/5days'], $btnLabels['/settings']]];
         $keyboard = ['keyboard' => $btns, 'resize_keyboard' => true];
-        var_dump(\Yii::$app->telegram->sendMessage([
+        \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
             'text' => $text,
             'reply_markup' => json_encode($keyboard)
-        ]));
+        ]);
     }
 }

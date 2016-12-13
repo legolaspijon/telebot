@@ -15,12 +15,12 @@ class SettingsCommand extends BaseCommand
         $text = html_entity_decode($text);
 
 
-        var_dump(\Yii::$app->telegram->sendMessage([
+        \Yii::$app->telegram->sendMessage([
             'chat_id' => $message->chat->id,
             'text' => $text,
             'parse_mode' => 'HTML',
             'reply_markup' => $this->keyboard()
-        ]));
+        ]);
     }
 
     public function keyboard() {

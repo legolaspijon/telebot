@@ -73,6 +73,11 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
+
+
+//        var_dump(\Yii::$app->session->get('isAnswer'));
+//        exit;
+
         // by webHook
         $this->update = \Yii::$app->telegram->hook();
 
@@ -81,7 +86,7 @@ class TelegramController extends Controller {
 //        $this->update = array_pop($this->update);
 
         $this->user = StateStorageHelper::getUser();
-        if($this->user === false){
+        if(!$this->user){
             $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
             if(!$user) {
                 $user = new Users([
@@ -99,7 +104,6 @@ class TelegramController extends Controller {
         }
         \Yii::trace(print_r($this->user, true), 'debug');
         \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
-        StateStorageHelper::setState(['/start']);
 
         return parent::beforeAction($action);
     }
@@ -157,8 +161,9 @@ class TelegramController extends Controller {
         $command = $this->checkCommand($c, $answer);
         if (!$command) return;
         if ($command instanceof BaseCommand) {
-            StateStorageHelper::setStates($this->currentCommand, $this->isStart());
+            StateStorageHelper::setStates($c, $this->isStart());
             $command->execute();
+            var_dump(\Yii::$app->session->get('state'));
         } else {
             throw new Exception('Command class must extends BaseCommand');
         }
@@ -175,6 +180,7 @@ class TelegramController extends Controller {
             $this->currentCommand = $command;
             $classNamespace = $this->commandClassNamespace . $this->commands[$command];
             if(class_exists($classNamespace)){
+                \Yii::trace('classNamespace: ' . $classNamespace, 'debug');
                 return new $classNamespace($this->update, $this->user, $answer);
             }
         }
@@ -188,7 +194,7 @@ class TelegramController extends Controller {
                 return $command;
             }
         }
-        return $inputCommand;
+        return false;
     }
 
     public function getCommandAlias($inputCommand) {
