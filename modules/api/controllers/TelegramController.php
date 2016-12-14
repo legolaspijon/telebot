@@ -4,6 +4,7 @@ namespace app\modules\api\controllers;
 
 use app\modules\api\commands\BaseCommand;
 use app\modules\api\helpers\StateStorageHelper;
+use app\modules\api\models\StateStorage;
 use app\modules\api\models\Users;
 use yii\base\Exception;
 use yii\web\Controller;
@@ -74,37 +75,40 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
-	try{
-        //$this->update = \Yii::$app->telegram->hook();
-	$this->update = json_decode(file_get_contents('php://input'));
-        // by getUpdates
-//        $this->update = \Yii::$app->telegram->getUpdates()->result;
-//        $this->update = array_pop($this->update);
 
-        $this->user = StateStorageHelper::getUser();
-        if(!$this->user){
-            $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
-            if(!$user) {
-                $user = new Users([
-                    'lang' => $this->defaultLang,
-                    'measurement' => $this->defaultMeasurement,
-                    'chat_id' => $this->update->message->chat->id,
-                    'first_name' => $this->update->message->from->first_name,
-                    'last_name' => $this->update->message->from->last_name,
-                ]);
-                if(!$user->save()) \Yii::trace('user not save', 'debug');
-                \Yii::$app->language = $this->defaultLang;
+        try{
+            //$this->update = \Yii::$app->telegram->hook();
+            //	$this->update = json_decode(file_get_contents('php://input'));
+            $this->update = \Yii::$app->telegram->getUpdates()->result;
+            $this->update = array_pop($this->update);
+
+            if(is_object($this->update)){
+                $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
+                if(!$user) {
+                    $user = new Users([
+                        'lang' => $this->defaultLang,
+                        'measurement' => $this->defaultMeasurement,
+                        'chat_id' => $this->update->message->chat->id,
+                        'first_name' => $this->update->message->from->first_name,
+                        'last_name' => $this->update->message->from->last_name,
+                    ]);
+                    if(!$user->save()) \Yii::trace('user not save', 'debug');
+                    ($this->storage = new StateStorage(['user_id' => $user->id]))->save();
+                    $this->storage->setUser($user->id);
+                    \Yii::$app->language = $this->defaultLang;
+                }
+                $this->user = $user;
+            } else {
+                throw new \Exception('update is empty');
             }
-            StateStorageHelper::setUser($user);
-            $this->user = $user;
+
+            \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
+        }catch(\Exception $e){
+            \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
         }
 
-        \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
-	}catch(\Exception $e){
-	    \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
-	}
-	call_user_func([$this, $action->actionMethod]);
 
+        call_user_func([$this, $action->actionMethod]);
         return parent::beforeAction($action);
     }
 
@@ -112,38 +116,38 @@ class TelegramController extends Controller {
      * Telegram send own updates here
      * */
     public function actionWebHook() {
-    file_put_contents('testing.txt', \Yii::$app->session->get('state'));
-try{
-        $answer = null;
 
-        if (StateStorageHelper::isAnswer()) {
-            $answer = $this->update->message->text;
+        try{
+            $answer = null;
+            if (StateStorage::isAnswer($this->user->id)) {
+                $answer = $this->update->message->text;
 
-            if(mb_strpos($answer, \Yii::t('app', 'back')) !== false) {
-                StateStorageHelper::unsetIsAnswer();
-                StateStorageHelper::removeLastCommand();
-                $answer = null;
-            }
+                if(mb_strpos($answer, \Yii::t('app', 'back')) !== false) {
+                    StateStorage::unsetIsAnswer($this->user->id);
+                    StateStorage::removeLastCommand($this->user->id);
+                    $answer = null;
+                }
 
-            $command = StateStorageHelper::getCurrentState();
-        } else {
-            if(mb_strpos($this->update->message->text, \Yii::t('app', 'back')) !== false) {
-                StateStorageHelper::removeLastCommand();
-                $command = StateStorageHelper::getCurrentState();
+                $command = StateStorage::getCurrentState($this->user->id);
             } else {
-                $command = $this->getCommandAlias($this->update->message->text);
+                if(mb_strpos($this->update->message->text, \Yii::t('app', 'back')) !== false) {
+                    StateStorage::removeLastCommand($this->user->id);
+                    $command = StateStorage::getCurrentState($this->user->id);
+                } else {
+                    $command = $this->getCommandAlias($this->update->message->text);
+                }
             }
+
+            if($command == '/start') {
+                $this->setStart();
+            }
+
+            $this->createCommand($command, $answer);
+        }catch(\Exception $e){
+            \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
         }
 
-        if($command == '/start') {
-            $this->setStart();
-        }
-}catch(\Exception $e){
-    \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
-}
-//	\Yii::trace($this->update->message->text, 'debug');
-        $this->createCommand($command, $answer);
-	exit;
+        exit;
     }
 
 
@@ -166,11 +170,8 @@ try{
         $command = $this->checkCommand($c, $answer);
         if (!$command) return;
         if ($command instanceof BaseCommand) {
-            StateStorageHelper::setStates($c, $this->isStart());
+            StateStorage::setState($c, $this->user->id, $this->isStart());
             $command->execute();
-\Yii::trace(\Yii::$app->session->get('state'), 'debug');
-\Yii::trace(\Yii::$app->session->get('isAnswer'), 'debug');
-var_dump(\Yii::$app->session->get('state'));
         } else {
             throw new Exception('Command class must extends BaseCommand');
         }
@@ -183,12 +184,10 @@ var_dump(\Yii::$app->session->get('state'));
      * */
     public function checkCommand($command, $answer = null)
     {
-
         if($command) {
             $this->currentCommand = $command;
             $classNamespace = $this->commandClassNamespace . $this->commands[$command];
             if(class_exists($classNamespace)){
-                \Yii::trace('classNamespace: ' . $classNamespace, 'debug');
                 return new $classNamespace($this->update, $this->user, $answer);
             }
         }

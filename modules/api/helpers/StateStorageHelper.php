@@ -3,9 +3,6 @@
 namespace app\modules\api\helpers;
 
 
-use app\modules\api\models\Users;
-use yii\web\YiiAsset;
-
 class StateStorageHelper {
 
     static public function isAnswer(){

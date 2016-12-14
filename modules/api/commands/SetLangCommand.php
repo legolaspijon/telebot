@@ -2,7 +2,7 @@
 
 namespace app\modules\api\commands;
 
-use app\modules\api\helpers\StateStorageHelper;
+use app\modules\api\models\StateStorage;
 use app\modules\api\models\Users;
 
 class SetLangCommand extends BaseCommand{
@@ -11,7 +11,7 @@ class SetLangCommand extends BaseCommand{
         $message = $this->update->message;
         if($this->answer) {
             if($this->setLang($message)) {
-                StateStorageHelper::unsetIsAnswer();
+                StateStorage::unsetIsAnswer($this->user->id);
                 \Yii::$app->telegram->sendMessage([
                     'chat_id' => $message->chat->id,
                     'text' => \Yii::t("app", '{language} language was set successfully...', ['language' => $message->text]),
@@ -24,7 +24,7 @@ class SetLangCommand extends BaseCommand{
                 ]);
             }
         } else {
-            StateStorageHelper::setIsAnswer();
+            StateStorage::setIsAnswer($this->user->id);
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 'text' => \Yii::t("app", "Choose language..."),

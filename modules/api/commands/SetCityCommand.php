@@ -2,7 +2,7 @@
 
 namespace app\modules\api\commands;
 
-use app\modules\api\helpers\StateStorageHelper;
+use app\modules\api\models\StateStorage;
 use app\modules\api\models\Users;
 
 class SetCityCommand extends BaseCommand{
@@ -10,10 +10,11 @@ class SetCityCommand extends BaseCommand{
     public function execute(){
         $menuEmoji = \Yii::$app->params['emoji']['menu'];
         $message = $this->update->message;
+
         if($this->answer) {
             $this->setCity($this->update->message);
         } else {
-            StateStorageHelper::setIsAnswer();
+            StateStorage::setIsAnswer($this->user->id);
             $btn = [[json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')]];
             $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true]);
 
@@ -40,7 +41,7 @@ class SetCityCommand extends BaseCommand{
                 'chat_id' => $message->chat->id,
                 'text' => \Yii::t('app', 'City {text} was successfully set...', ['text' => $message->text]),
             ]);
-            StateStorageHelper::unsetIsAnswer();
+            StateStorage::unsetIsAnswer($this->user->id);
         } else {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,

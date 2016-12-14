@@ -2,7 +2,7 @@
 
 namespace app\modules\api\commands;
 
-use app\modules\api\helpers\StateStorageHelper;
+use app\modules\api\models\StateStorage;
 use app\modules\api\models\Users;
 
 class SetMeasurementCommand extends BaseCommand
@@ -15,7 +15,7 @@ class SetMeasurementCommand extends BaseCommand
         if ($this->answer) {
             $this->setMeasurement($message);
         } else {
-            StateStorageHelper::setIsAnswer();
+            StateStorage::setIsAnswer($this->user->id);
             $btn = [[json_decode('"'. $menuEmoji['back'] .'"') .' '. \Yii::t('app', 'back')], ['C', 'F']];
             $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
             \Yii::$app->telegram->sendMessage([
@@ -38,7 +38,7 @@ class SetMeasurementCommand extends BaseCommand
                 'reply_markup' => $keyboard
             ]);
 
-            StateStorageHelper::unsetIsAnswer();
+            StateStorage::unsetIsAnswer($this->user->id);
             return true;
         }
 
