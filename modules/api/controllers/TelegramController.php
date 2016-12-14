@@ -7,6 +7,7 @@ use app\modules\api\helpers\StateStorageHelper;
 use app\modules\api\models\Users;
 use yii\base\Exception;
 use yii\web\Controller;
+use yii\web\Response;
 
 class TelegramController extends Controller {
     /**
@@ -73,14 +74,9 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
-
-
-//        var_dump(\Yii::$app->session->get('isAnswer'));
-//        exit;
-
-        // by webHook
-        $this->update = \Yii::$app->telegram->hook();
-
+	try{
+        //$this->update = \Yii::$app->telegram->hook();
+	$this->update = json_decode(file_get_contents('php://input'));
         // by getUpdates
 //        $this->update = \Yii::$app->telegram->getUpdates()->result;
 //        $this->update = array_pop($this->update);
@@ -102,8 +98,12 @@ class TelegramController extends Controller {
             StateStorageHelper::setUser($user);
             $this->user = $user;
         }
-        \Yii::trace(print_r($this->user, true), 'debug');
+
         \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
+	}catch(\Exception $e){
+	    \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
+	}
+	call_user_func([$this, $action->actionMethod]);
 
         return parent::beforeAction($action);
     }
@@ -112,7 +112,8 @@ class TelegramController extends Controller {
      * Telegram send own updates here
      * */
     public function actionWebHook() {
-
+    file_put_contents('testing.txt', \Yii::$app->session->get('state'));
+try{
         $answer = null;
 
         if (StateStorageHelper::isAnswer()) {
@@ -137,8 +138,12 @@ class TelegramController extends Controller {
         if($command == '/start') {
             $this->setStart();
         }
-
+}catch(\Exception $e){
+    \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
+}
+//	\Yii::trace($this->update->message->text, 'debug');
         $this->createCommand($command, $answer);
+	exit;
     }
 
 
@@ -163,7 +168,9 @@ class TelegramController extends Controller {
         if ($command instanceof BaseCommand) {
             StateStorageHelper::setStates($c, $this->isStart());
             $command->execute();
-            var_dump(\Yii::$app->session->get('state'));
+\Yii::trace(\Yii::$app->session->get('state'), 'debug');
+\Yii::trace(\Yii::$app->session->get('isAnswer'), 'debug');
+var_dump(\Yii::$app->session->get('state'));
         } else {
             throw new Exception('Command class must extends BaseCommand');
         }
@@ -176,6 +183,7 @@ class TelegramController extends Controller {
      * */
     public function checkCommand($command, $answer = null)
     {
+
         if($command) {
             $this->currentCommand = $command;
             $classNamespace = $this->commandClassNamespace . $this->commands[$command];
