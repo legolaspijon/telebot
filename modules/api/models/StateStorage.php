@@ -37,7 +37,8 @@ class StateStorage extends \yii\db\ActiveRecord
      * Управление ответом
      * */
     static public function isAnswer($id){
-        return self::findModel($id)->isAnswer;
+        $res = self::findModel($id);
+        return $res ? $res->isAnswer : false;
     }
 
     static public function setIsAnswer($id){

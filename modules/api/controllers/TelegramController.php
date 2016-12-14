@@ -3,12 +3,10 @@
 namespace app\modules\api\controllers;
 
 use app\modules\api\commands\BaseCommand;
-use app\modules\api\helpers\StateStorageHelper;
 use app\modules\api\models\StateStorage;
 use app\modules\api\models\Users;
 use yii\base\Exception;
 use yii\web\Controller;
-use yii\web\Response;
 
 class TelegramController extends Controller {
     /**
@@ -77,10 +75,10 @@ class TelegramController extends Controller {
     public function beforeAction($action) {
 
         try{
-            //$this->update = \Yii::$app->telegram->hook();
+            $this->update = \Yii::$app->telegram->hook();
             //	$this->update = json_decode(file_get_contents('php://input'));
-            $this->update = \Yii::$app->telegram->getUpdates()->result;
-            $this->update = array_pop($this->update);
+//            $this->update = \Yii::$app->telegram->getUpdates()->result;
+//            $this->update = array_pop($this->update);
 
             if(is_object($this->update)){
                 $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
@@ -93,8 +91,8 @@ class TelegramController extends Controller {
                         'last_name' => $this->update->message->from->last_name,
                     ]);
                     if(!$user->save()) \Yii::trace('user not save', 'debug');
-                    ($this->storage = new StateStorage(['user_id' => $user->id]))->save();
-                    $this->storage->setUser($user->id);
+                    $state = new StateStorage(['user_id' => $user->id]);
+                    $state->save();
                     \Yii::$app->language = $this->defaultLang;
                 }
                 $this->user = $user;

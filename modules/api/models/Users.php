@@ -65,7 +65,6 @@ class Users extends \yii\db\ActiveRecord
     {
         $user = self::findOne(['chat_id' => $chat_id]);
         $user->{$option} = $value;
-        //StateStorageHelper::setUser($user);
 
         return $user->save();
     }
