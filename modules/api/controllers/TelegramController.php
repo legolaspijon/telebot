@@ -76,7 +76,7 @@ class TelegramController extends Controller {
 
         try{
             $this->update = \Yii::$app->telegram->hook();
-            //	$this->update = json_decode(file_get_contents('php://input'));
+            //$this->update = json_decode(file_get_contents('php://input'));
 //            $this->update = \Yii::$app->telegram->getUpdates()->result;
 //            $this->update = array_pop($this->update);
 
@@ -90,7 +90,7 @@ class TelegramController extends Controller {
                         'first_name' => $this->update->message->from->first_name,
                         'last_name' => $this->update->message->from->last_name,
                     ]);
-                    if(!$user->save()) \Yii::trace('user not save', 'debug');
+                    if($user->save()) \Yii::trace('user saved', 'debug');
                     $state = new StateStorage(['user_id' => $user->id]);
                     $state->save();
                     \Yii::$app->language = $this->defaultLang;
@@ -102,7 +102,7 @@ class TelegramController extends Controller {
 
             \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
         }catch(\Exception $e){
-            \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
+            \Yii::trace($e->getMessage().' '.$e->getLine(). '<<< file:'. $e->getFile(), 'debug');
         }
 
 
@@ -142,7 +142,7 @@ class TelegramController extends Controller {
 
             $this->createCommand($command, $answer);
         }catch(\Exception $e){
-            \Yii::trace($e->getMessage().' '.$e->getLine(), 'debug');
+            \Yii::trace($e->getMessage().' '.$e->getLine().' '.$e->getFile(), 'debug');
         }
 
         exit;

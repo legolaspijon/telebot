@@ -33,7 +33,7 @@ return [
     "Tomorrow {date} {day}" => "Завтра {date} {day}",
     "For {date} {day}" => "Погода на {date} {day}",
     "Supported commands" => "поддерживаемые команды",
-    'back' => 'назад',
+    "back" => "назад",
     "main menu" => "главное меню",
     "view supported commands" => "показатывает поддерживаемые комманды",
     "you can set language, city, units here" => "вы можете установить язык, город, ед. измерений здесь",
@@ -43,4 +43,6 @@ return [
     "today weather" => "погода на сегодня",
     "tomorrow weather" => "погода на завтра",
     "weather 5 days" => "погода на 5 дней",
+    "Wind speed {speed} m/s" => "Скорость ветра {speed} м/c",
+    "Clouds {clouds}%" => "Облака {clouds}%",
 ];

@@ -28,14 +28,12 @@ class OpenWeather extends Component {
      * @return array of response
      * */
     public function getWeather($city, $params){
-
-        $cache = \Yii::$app->cache;
-        $weather = $cache->get("weather_$city");
-        if($weather === false) {
-            $weather = $this->buildQuery('/weather?', $city, $params);
-            $cache->add("weather_$city", $weather, 3600*3);
-        }
-
+	//$cache = \Yii::$app->cache;
+        //$weather = $cache->get("weather_$city");
+        //if($weather === false) {
+    	    $weather = $this->buildQuery('/weather?', $city, $params);
+    	    //$cache->add("weather_$city", $weather, 3600*3);
+    	//}
         return $weather;
     }
 
@@ -48,18 +46,18 @@ class OpenWeather extends Component {
      * @return array|bool
      * */
     public function getForecast($city, $params, $days = null) {
-        $cache = \Yii::$app->cache;
+	//$cache = \Yii::$app->cache;
         if($days > self::DEFAULT_FORECAST && $days < 1) {
             \Yii::trace('Days must by <= '. self::DEFAULT_FORECAST);
             return false;
         }
 
         $params['cnt'] = self::DEFAULT_FORECAST;
-        $weather = $cache->get("forecast_$city");
-        if($weather === false) {
+        //$weather = $cache->get("forecast_$city");
+        //if($weather === false) {
             $weather = $this->buildQuery('/forecast/daily?', $city, $params);
-            $cache->add("forecast_$city", $weather, 3600*3);
-        }
+            //$cache->add("forecast_$city", $weather, 3600*3);
+        //}
 
         return array_splice($weather['list'], 0, $days);
     }

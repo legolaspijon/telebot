@@ -71,7 +71,7 @@ class Users extends \yii\db\ActiveRecord
 
     public function beforeSave($insert)
     {
-        \Yii::$app->cache->flush();
+        // \Yii::$app->cache->flush();
         return parent::beforeSave($insert);
     }
 }
