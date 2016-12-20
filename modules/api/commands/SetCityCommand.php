@@ -16,11 +16,11 @@ class SetCityCommand extends BaseCommand{
         } else {
             StateStorage::setIsAnswer($this->user->id);
             $btn = [[json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')]];
-            $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true]);
+            $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true, 'one_time_keyboard' => true]);
 
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => \Yii::t('app', 'Enter the city'),
+                'text' => \Yii::t('app', 'Enter the city (in Russian)'),
                 'reply_markup' => $keyboard,
             ]);
         }
@@ -33,6 +33,7 @@ class SetCityCommand extends BaseCommand{
                 'chat_id' => $message->chat->id,
                 'text' => \Yii::t('app', 'City {text} does not exist', ['text' => $message->text]),
             ]);
+
             return;
         }
 
@@ -42,6 +43,9 @@ class SetCityCommand extends BaseCommand{
                 'text' => \Yii::t('app', 'City {text} was successfully set...', ['text' => $message->text]),
             ]);
             StateStorage::unsetIsAnswer($this->user->id);
+            StateStorage::removeLastCommand($this->user->id);
+            sleep(1);
+            $this->bot->createCommand('/settings', null, 1);
         } else {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,

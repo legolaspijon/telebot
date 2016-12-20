@@ -17,10 +17,10 @@ class SetMeasurementCommand extends BaseCommand
         } else {
             StateStorage::setIsAnswer($this->user->id);
             $btn = [[json_decode('"'. $menuEmoji['back'] .'"') .' '. \Yii::t('app', 'back')], ['C', 'F']];
-            $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
+            $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true, 'one_time_keyboard' => true]);
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => \Yii::t("app", 'select units...'),
+                'text' => \Yii::t("app", 'Select units'),
                 'reply_markup' => $keyboard
             ]);
         }
@@ -32,6 +32,7 @@ class SetMeasurementCommand extends BaseCommand
             $menuEmoji = \Yii::$app->params['emoji']['menu'];
             $btn = [[json_decode('"'. $menuEmoji['back'] .'"') .' '. \Yii::t('app', 'back')]];
             $keyboard = json_encode(['keyboard' => $btn, "resize_keyboard" => true]);
+
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 'text' => \Yii::t("app", "Units '{text}' was set successfully...", ['text' => $message->text]),
@@ -39,6 +40,10 @@ class SetMeasurementCommand extends BaseCommand
             ]);
 
             StateStorage::unsetIsAnswer($this->user->id);
+            StateStorage::removeLastCommand($this->user->id);
+            sleep(1);
+            $this->bot->createCommand('/settings', null, 1);
+
             return true;
         }
 

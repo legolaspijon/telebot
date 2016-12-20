@@ -21,23 +21,18 @@ class TelegramController extends Controller {
      * */
     public $defaultCommand = '';
 
+
     /**
      * Default language
      * @var $defaultCommand string
      * */
-    public $defaultLang = 'en';
+    public $defaultLang = 'ru';
 
     /**
      * Default measurement
      * @var $defaultMeasurement string
      * */
     public $defaultMeasurement = 'C';
-
-    /**
-     * current command
-     * @var $currentCommand string
-     * */
-    public $currentCommand;
 
     /**
      * last updates
@@ -76,33 +71,16 @@ class TelegramController extends Controller {
 
         try{
             $this->update = \Yii::$app->telegram->hook();
-            //$this->update = json_decode(file_get_contents('php://input'));
-//            $this->update = \Yii::$app->telegram->getUpdates()->result;
-//            $this->update = array_pop($this->update);
-
+            \Yii::trace(print_r($this->update, true), 'debug');
             if(is_object($this->update)){
-                $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
-                if(!$user) {
-                    $user = new Users([
-                        'lang' => $this->defaultLang,
-                        'measurement' => $this->defaultMeasurement,
-                        'chat_id' => $this->update->message->chat->id,
-                        'first_name' => $this->update->message->from->first_name,
-                        'last_name' => $this->update->message->from->last_name,
-                    ]);
-                    if($user->save()) \Yii::trace('user saved', 'debug');
-                    $state = new StateStorage(['user_id' => $user->id]);
-                    $state->save();
-                    \Yii::$app->language = $this->defaultLang;
-                }
-                $this->user = $user;
+                $this->setUser();
             } else {
                 throw new \Exception('update is empty');
             }
 
             \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
         }catch(\Exception $e){
-            \Yii::trace($e->getMessage().' '.$e->getLine(). '<<< file:'. $e->getFile(), 'debug');
+            \Yii::trace("Error: ". $e->getMessage()."\nLine:".$e->getLine(). "\nFile: ". $e->getFile(), 'debug');
         }
 
 
@@ -142,7 +120,7 @@ class TelegramController extends Controller {
 
             $this->createCommand($command, $answer);
         }catch(\Exception $e){
-            \Yii::trace($e->getMessage().' '.$e->getLine().' '.$e->getFile(), 'debug');
+            \Yii::trace("\nError: " .$e->getMessage()."\nLine: ".$e->getLine()."\nFile: ".$e->getFile(), 'debug');
         }
 
         exit;
@@ -160,15 +138,17 @@ class TelegramController extends Controller {
     }
 
     /**
-     * @var $text string
+     * @var $c string
      * @var $answer string
      * @throws Exception
      * */
-    protected function createCommand($c, $answer = null) {
-        $command = $this->checkCommand($c, $answer);
+    public function createCommand($inputCommand, $answer = null, $redirect = false) {
+        if($redirect) $this->setUser();
+
+        $command = $this->checkCommand($inputCommand, $answer);
         if (!$command) return;
         if ($command instanceof BaseCommand) {
-            StateStorage::setState($c, $this->user->id, $this->isStart());
+            StateStorage::setState($inputCommand, $this->user->id, $this->isStart());
             $command->execute();
         } else {
             throw new Exception('Command class must extends BaseCommand');
@@ -183,10 +163,9 @@ class TelegramController extends Controller {
     public function checkCommand($command, $answer = null)
     {
         if($command) {
-            $this->currentCommand = $command;
             $classNamespace = $this->commandClassNamespace . $this->commands[$command];
             if(class_exists($classNamespace)){
-                return new $classNamespace($this->update, $this->user, $answer);
+                return new $classNamespace($this->update, $this->user, $answer, $this);
             }
         }
 
@@ -211,7 +190,26 @@ class TelegramController extends Controller {
         return $this->getDefaultCommand($inputCommand);
     }
 
-    public function searchCommand($searchCommand, $searchWhere) {
+    protected function searchCommand($searchCommand, $searchWhere) {
         return preg_match("~(\B)?$searchCommand\b~iu", $searchWhere);
+    }
+
+
+    protected function setUser(){
+        $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
+        if(!$user) {
+            $user = new Users([
+                'lang' => $this->defaultLang,
+                'measurement' => $this->defaultMeasurement,
+                'chat_id' => $this->update->message->chat->id,
+                'first_name' => $this->update->message->from->first_name,
+                'last_name' => $this->update->message->from->last_name,
+            ]);
+            if($user->save()) \Yii::trace('user saved', 'debug');
+            $state = new StateStorage(['user_id' => $user->id]);
+            $state->save();
+            \Yii::$app->language = $this->defaultLang;
+        }
+        $this->user = $user;
     }
 }

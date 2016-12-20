@@ -1,15 +1,20 @@
 <?php
 namespace app\modules\api\commands;
 
-use app\modules\api\commands\BaseCommand;
-
 class HelloCommand extends BaseCommand {
 
     public function execute()
     {
+
+        $btns = [
+            [['text' => 'summary', 'callback_data' => 'qwerty']],
+        ];
+        $keyboard = ['inline_keyboard' => $btns];
+
         \Yii::$app->telegram->sendMessage([
             'chat_id' => $this->update->message->chat->id,
             'text' => 'hello command executed',
+            'reply_markup' => json_encode($keyboard),
         ]);
     }
 }

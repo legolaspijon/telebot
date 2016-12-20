@@ -60,6 +60,9 @@ class StateStorage extends \yii\db\ActiveRecord
         if($start) self::setOption('state', null, $user_id);
         if($model && $model->state != null) {
             $state = unserialize($model->state);
+	    if(count($state) > 10){
+		    $state[] = end($state);
+	    }
             if(end($state) == $command) return false;
             array_push($state, $command);
             return self::setOption('state', serialize($state), $user_id);
@@ -78,7 +81,10 @@ class StateStorage extends \yii\db\ActiveRecord
     static public function removeLastCommand($user_id){
         $model = self::findModel($user_id);
         $state = $model->getState();
-        array_pop($state);
+        if (count($state) == 1) {
+            $state[0] = '/start';
+        } else { array_pop($state); }
+
         self::setOption('state', serialize($state), $user_id);
     }
 
@@ -89,8 +95,9 @@ class StateStorage extends \yii\db\ActiveRecord
         return $model->save();
     }
 
-    public function getState(){
-        return unserialize($this->state);
+    protected function getState(){
+        $state = unserialize($this->state);
+        return is_array($state) ? $state : [];
     }
 
     static public function findModel($user_id){

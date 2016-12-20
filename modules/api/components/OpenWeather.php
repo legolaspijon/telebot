@@ -11,14 +11,16 @@ class OpenWeather extends Component {
      * */
     public $appId;
 
-
     /**
      * Format response json|xml
      * */
     public $format;
 
-
     const BASE_URL = 'http://api.openweathermap.org/data/2.5';
+
+    /**
+     * Forecast days count
+     * */
     const DEFAULT_FORECAST = 16;
 
     /**
