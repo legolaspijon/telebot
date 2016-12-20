@@ -68,6 +68,7 @@ class Users extends \yii\db\ActiveRecord
 
         return $user->save();
     }
+    
 
     public function beforeSave($insert)
     {
