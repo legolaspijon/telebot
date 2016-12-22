@@ -10,7 +10,7 @@ class SettingsCommand extends BaseCommand
         $text = "\n<b>". \Yii::t("app", "Current Settings:") ."</b>";
         $text .= "\n<b>". \Yii::t("app", "City") .":</b> " . $this->user->city;
         $text .= "\n<b>". \Yii::t("app", "Language") .":</b> " . \Yii::$app->params['languages'][$this->user->lang];
-        $text .= "\n<b>". \Yii::t("app", "Units") .":</b> &deg;" . $this->user->measurement;
+//        $text .= "\n<b>". \Yii::t("app", "Units") .":</b> &deg;" . $this->user->measurement;
         $text .= "\n\n<b>". \Yii::t('app', "Select an option...") ."</b>";
         $text = html_entity_decode($text);
 
@@ -34,7 +34,7 @@ class SettingsCommand extends BaseCommand
 
         $btns = [
             [json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')],
-            [$emojiEncoded['location']." ".$btnLabels["/city"],  $emojiEncoded['units']." ".$btnLabels["/measurement"]],
+            [$emojiEncoded['location']." ".$btnLabels["/city"] /*,$emojiEncoded['units']." ".$btnLabels["/measurement"]*/],
             [$emojiEncoded['language']." ".$btnLabels["/language"]]
         ];
 

@@ -20,7 +20,8 @@
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "aki/yii2-bot-telegram": "*",
         "irazasyed/telegram-bot-sdk": "^2.0",
-        "cmfcmf/openweathermap-php-api": "^2.1"
+        "cmfcmf/openweathermap-php-api": "^2.1",
+        "electrolinux/phpquery": "^0.9.6"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

@@ -15,12 +15,16 @@ class SetCityCommand extends BaseCommand{
             $this->setCity($this->update->message);
         } else {
             StateStorage::setIsAnswer($this->user->id);
-            $btn = [[json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')]];
+            foreach (\Yii::$app->params['cities'] as $city){
+                $btn[] = [$city];
+            }
+            array_unshift($btn, [json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')]);
             $keyboard = json_encode(['keyboard' => $btn, 'resize_keyboard' => true, 'one_time_keyboard' => true]);
 
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => \Yii::t('app', 'Enter the city (in Russian)'),
+                //'text' => \Yii::t('app', 'Enter the city (in Russian)'),
+                'text' => \Yii::t('app', 'Выберите город'),
                 'reply_markup' => $keyboard,
             ]);
         }
@@ -56,15 +60,14 @@ class SetCityCommand extends BaseCommand{
     }
 
     private function checkCity($city){
-        $countries = simplexml_load_file('https://pogoda.yandex.ru/static/cities.xml');
-        foreach ($countries->country as $cities) {
-            foreach ($cities->city as $xmlcity) {
-                if (mb_strtolower($xmlcity, "UTF-8") == mb_strtolower($city, "UTF-8")) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+//        $countries = simplexml_load_file('https://pogoda.yandex.ru/static/cities.xml');
+//        foreach ($countries->country as $cities) {
+//            foreach ($cities->city as $xmlcity) {
+//                if (mb_strtolower($xmlcity, "UTF-8") == mb_strtolower($city, "UTF-8")) {
+//                    return true;
+//                }
+//            }
+//        }
+        return in_array(strtolower($city), \Yii::$app->params['cities']) ? true : false;
     }
 }

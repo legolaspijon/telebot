@@ -46,19 +46,24 @@ class TelegramController extends Controller {
     public $commands = [
     // Settings
         '/settings' => 'SettingsCommand',
-        '/measurement' => 'SetMeasurementCommand',
+//        '/measurement' => 'SetMeasurementCommand',
         '/city' => 'SetCityCommand',
         '/language' => 'SetLangCommand',
-        '/notification' => 'SetNotificationCommand',
+//        '/notification' => 'SetNotificationCommand',
 
     // Show weather for:
-        '/today' => 'ShowWeatherTodayCommand',
-        '/tomorrow' => 'ShowWeatherTomorrowCommand',
-        '/5days' => 'ShowWeatherFiveCommand',
+//        '/today' => 'ShowWeatherTodayCommand',
+//        '/tomorrow' => 'ShowWeatherTomorrowCommand',
+//        '/5days' => 'ShowWeatherFiveCommand',
 
         '/hello' => 'HelloCommand',
         '/start' => 'StartCommand',
         '/help' => 'HelpCommand',
+    // courses
+//        '/course' => 'CourseCommand',
+        '/usd' => 'ShowUsdCommand',
+        '/eur' => 'ShowEurCommand',
+        '/rub' => 'ShowRubCommand',
     ];
 
     /**
@@ -70,8 +75,9 @@ class TelegramController extends Controller {
     public function beforeAction($action) {
 
         try{
-            $this->update = \Yii::$app->telegram->hook();
-            \Yii::trace(print_r($this->update, true), 'debug');
+//            $this->update = \Yii::$app->telegram->hook();
+            $update = \Yii::$app->telegram->getUpdates()->result;
+            $this->update = array_pop($update);
             if(is_object($this->update)){
                 $this->setUser();
             } else {
@@ -82,7 +88,6 @@ class TelegramController extends Controller {
         }catch(\Exception $e){
             \Yii::trace("Error: ". $e->getMessage()."\nLine:".$e->getLine(). "\nFile: ". $e->getFile(), 'debug');
         }
-
 
         call_user_func([$this, $action->actionMethod]);
         return parent::beforeAction($action);
@@ -125,7 +130,6 @@ class TelegramController extends Controller {
 
         exit;
     }
-
 
     private $_start = false;
 

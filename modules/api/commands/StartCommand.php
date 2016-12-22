@@ -13,9 +13,9 @@ class StartCommand extends BaseCommand
             $this->bot->createCommand('/city');
         } else {
             $text = \Yii::t("app", "For view supported command list use /help. Also you can start typing '<b>/</b>' for search command.");
-            $text .= "\n\n" . \Yii::t("app", "What weather do you want to see???");
+            $text .= "\n\n" . \Yii::t("app", "Select currency which you want to get.");
 
-            $btns = [[$btnLabels['/today'], $btnLabels['/tomorrow']], [$btnLabels['/5days'], $btnLabels['/settings']]];
+            $btns = [[$btnLabels['/usd'], $btnLabels['/eur']], [$btnLabels['/rub'], $btnLabels['/settings']]];
             $keyboard = ['keyboard' => $btns, 'resize_keyboard' => true];
 
             \Yii::$app->telegram->sendMessage([

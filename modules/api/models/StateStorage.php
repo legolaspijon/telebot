@@ -66,6 +66,7 @@ class StateStorage extends \yii\db\ActiveRecord
         if($model && $model->state != null) {
             $state = unserialize($model->state);
 	    if(count($state) > 10){
+            echo '>10';
 		    $state[] = end($state);
 	    }
             if(end($state) == $command) return false;
