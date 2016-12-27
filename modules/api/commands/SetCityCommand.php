@@ -70,6 +70,6 @@ class SetCityCommand extends BaseCommand{
 //        }
         //\Yii::trace(trim(strtolower($city)), 'debug');
         \Yii::trace('qwerty' . $city, 'debug');
-        return in_array($city, \Yii::$app->params['cities']) ? true : false;
+        return in_array(trim(strtolower($city)), \Yii::$app->params['cities']) ? true : false;
     }
 }

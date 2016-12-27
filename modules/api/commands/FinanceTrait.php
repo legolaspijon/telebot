@@ -10,6 +10,7 @@ trait FinanceTrait {
      */
     public function formattingResponse($currencies_info, $currency){
         $text = "<b>".\Yii::t('app', 'Currency').":</b> ".strtoupper($currency)."\n";
+        $text .= "<b>Город</b>: {$this->user->city}\n";
         $text .= "<b>".\Yii::t('app', 'City')."</b>: {$this->user->city}\n";
         $text .= "\n<i>".\Yii::t('app', 'Average buy').": {$currencies_info['buy']}</i>";
         $text .= "\n<i>".\Yii::t('app', 'Average sell').": {$currencies_info['sell']}</i>";
