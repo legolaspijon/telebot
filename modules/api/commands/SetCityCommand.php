@@ -24,36 +24,36 @@ class SetCityCommand extends BaseCommand{
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 //'text' => \Yii::t('app', 'Enter the city (in Russian)'),
-                'text' => \Yii::t('app', 'Выберите город'),
+                'text' => \Yii::t('app', 'Select the city'),
                 'reply_markup' => $keyboard,
             ]);
         }
     }
 
     private function setCity($message){
-
-        if(!$this->checkCity($message->text)) {
+        $city = mb_strtolower(trim($message->text));
+        if(!$this->checkCity($city)) {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => \Yii::t('app', 'City {text} does not exist', ['text' => $message->text]),
+                'text' => \Yii::t('app', 'City {text} does not exist', ['text' => $city]),
             ]);
 
             return;
         }
 
-        if(Users::setOption('city', $message->text, $message->chat->id)){
+        if(Users::setOption('city', $city, $message->chat->id)){
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' => \Yii::t('app', 'City {text} was successfully set...', ['text' => $message->text]),
+                'text' => \Yii::t('app', 'City {text} was successfully set...', ['text' => $city]),
             ]);
             StateStorage::unsetIsAnswer($this->user->id);
             StateStorage::removeLastCommand($this->user->id);
             sleep(1);
-            $this->bot->createCommand('/settings', null, 1);
+            $this->bot->createCommand('/start', null, 1);
         } else {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                'text' =>  \Yii::t('app', 'City {text} is not set, something wrong... try again', ['text' => $message->text]),
+                'text' =>  \Yii::t('app', 'City {text} is not set, something wrong... try again', ['text' => $city]),
 
             ]);
         }
@@ -68,6 +68,8 @@ class SetCityCommand extends BaseCommand{
 //                }
 //            }
 //        }
-        return in_array(strtolower($city), \Yii::$app->params['cities']) ? true : false;
+        //\Yii::trace(trim(strtolower($city)), 'debug');
+        \Yii::trace('qwerty' . $city, 'debug');
+        return in_array($city, \Yii::$app->params['cities']) ? true : false;
     }
 }

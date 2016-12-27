@@ -33,7 +33,7 @@ class SettingsCommand extends BaseCommand
         }
 
         $btns = [
-            [json_decode('"'.$menuEmoji['back'].'"') .' '. \Yii::t('app', 'back')],
+            [$btnLabels["/start"]],
             [$emojiEncoded['location']." ".$btnLabels["/city"] /*,$emojiEncoded['units']." ".$btnLabels["/measurement"]*/],
             [$emojiEncoded['language']." ".$btnLabels["/language"]]
         ];

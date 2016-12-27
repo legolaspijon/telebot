@@ -75,9 +75,9 @@ class TelegramController extends Controller {
     public function beforeAction($action) {
 
         try{
-//            $this->update = \Yii::$app->telegram->hook();
-            $update = \Yii::$app->telegram->getUpdates()->result;
-            $this->update = array_pop($update);
+            $this->update = \Yii::$app->telegram->hook();
+//            $update = \Yii::$app->telegram->getUpdates()->result;
+//            $this->update = array_pop($update);
             if(is_object($this->update)){
                 $this->setUser();
             } else {

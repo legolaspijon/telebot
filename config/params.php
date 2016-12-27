@@ -19,6 +19,7 @@ return [
             '/usd' => 'USD',
             '/eur' => 'EUR',
             '/rub' => 'RUB',
+            '/start' => 'на главную',
         ],
         'en' => [
             '/settings' => 'settings',
@@ -32,6 +33,7 @@ return [
             '/usd' => 'USD',
             '/eur' => 'EUR',
             '/rub' => 'RUB',
+            '/start' => 'main menu',
         ],
     ],
     'units' => [

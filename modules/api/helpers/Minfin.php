@@ -41,11 +41,11 @@ class Minfin {
      * @return array
      */
     public static function getAverageSum($currency, $city = 'all'){
-        $key = md5('everage_'.$currency.$city);
-        if(false === ($html = \Yii::$app->cache->get($key))){
+//        $key = md5('everage_'.$currency.$city);
+//        if(false === ($html = \Yii::$app->cache->get($key))){
             $html = self::curl($currency, $city);
-            \Yii::$app->cache->add($key, $html, 300);
-        }
+//            \Yii::$app->cache->add($key, $html, 300);
+//        }
 
         $document = phpQuery::newDocument($html);
         $sell_buy = $document->find('.au-status > .au-status--group:first-child');
@@ -62,7 +62,7 @@ class Minfin {
         $forSell = $firstBlock->find('.au-pbar:last');
         $buying = $secondBlock->find('.au-pbar:first');
         $selling = $secondBlock->find('.au-pbar:last');
-        $rurs = $buying->find('.rurs:first')->text();
+        $rurs = str_replace('P', '₽', $buying->find('.rurs:first')->text());
         $forSell->find('*')->remove();
         $forBuy->find('*')->remove();
         $buying->find('*')->remove();
@@ -92,12 +92,12 @@ class Minfin {
      * @return array
      */
     public static function getDealsList($currency, $city = 'all'){
-        $key = md5('dealslist_'.$currency.$city);
-        if(false === ($html = \Yii::$app->cache->get($key))){
+//        $key = md5('dealslist_'.$currency.$city);
+//        if(false === ($html = \Yii::$app->cache->get($key))){
             $html['sell'] = self::curl($currency, $city, 'sell');
             $html['buy'] = self::curl($currency, $city, 'buy');
-            \Yii::$app->cache->add($key, $html, 300); // 15 minutes
-        }
+//            \Yii::$app->cache->add($key, $html, 300); // 15 minutes
+//        }
         $deals = array_merge(self::parseDeals($html['sell'], self::ACTION_SELL), self::parseDeals($html['buy'], self::ACTION_BUY));
 
         return $deals;

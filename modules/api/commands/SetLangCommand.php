@@ -21,7 +21,7 @@ class SetLangCommand extends BaseCommand{
                 ]);
                 sleep(1);
                 StateStorage::removeLastCommand($this->user->id);
-                $this->bot->createCommand('/settings', null, 1);
+                $this->bot->createCommand('/start', null, 1);
             } else {
                 \Yii::$app->telegram->sendMessage([
                     'chat_id' => $message->chat->id,

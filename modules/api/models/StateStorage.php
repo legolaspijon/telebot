@@ -65,10 +65,12 @@ class StateStorage extends \yii\db\ActiveRecord
         if($start) self::setOption('state', null, $user_id);
         if($model && $model->state != null) {
             $state = unserialize($model->state);
-	    if(count($state) > 10){
-            echo '>10';
-		    $state[] = end($state);
-	    }
+            if(count($state) >= 5){
+                $new = array_pop($state);
+                unset($state);
+                $state = (array) $new;
+            }
+
             if(end($state) == $command) return false;
             array_push($state, $command);
             return self::setOption('state', serialize($state), $user_id);

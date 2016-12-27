@@ -11,7 +11,7 @@ class ShowEurCommand extends BaseCommand {
     public function execute()
     {
         $city = array_search($this->user->city, \Yii::$app->params['cities']);
-        $currency = Minfin::CURRENCY_USD;
+        $currency = Minfin::CURRENCY_EUR;
         $currencies_info = Minfin::getCurrencyAuction($currency, $city);
         $text = $this->formattingResponse($currencies_info, $currency);
 

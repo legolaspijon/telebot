@@ -48,4 +48,13 @@ return [
     "At first you need to follow <b>settings->city</b>, and set the city, the weather in which you want to receive" => "Для начала вам нужно проследовать <b>опции->город</b>, и установить город, погоду которого вы хотите получить",
     "For view supported command list use /help. Also you can start typing '<b>/</b>' for search command." => "Для просмотра списка поддерживаемых команд используйте команду /help. Также для быстрого поиска команд начните вводить '<b>/</b>'.",
     "Enter the city (in Russian)" => "Введите город (На русском)",
+    "Select currency which you want to get." => "Выберите валюту информацию по которой хотите получить",
+    "Average buy" => "Средняя покупка",
+    "Average sell" => "Средняя продажа",
+    "Requests for buy" => "Заявок на покупку",
+    "Requests for sell" => "Заявок на продажу",
+    "Sell" => "Продают",
+    "Buy" => "Покупают",
+    "Currency" => "Валюта",
+    "Select the city" => "Выберите город",
 ];
