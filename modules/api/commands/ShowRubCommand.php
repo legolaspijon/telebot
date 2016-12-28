@@ -2,6 +2,7 @@
 
 namespace app\modules\api\commands;
 
+use app\modules\api\helpers\CurrencyAuction;
 use app\modules\api\helpers\Minfin;
 
 class ShowRubCommand extends BaseCommand {
@@ -10,9 +11,10 @@ class ShowRubCommand extends BaseCommand {
 
     public function execute()
     {
+        $currencyAuction = new CurrencyAuction();
         $city = array_search($this->user->city, \Yii::$app->params['cities']);
-        $currency = Minfin::CURRENCY_RUB;
-        $currencies_info = Minfin::getCurrencyAuction($currency, $city);
+        $currency = CurrencyAuction::CURRENCY_RUB;
+        $currencies_info = $currencyAuction->getCurrencyAuction($currency, $city);
         $text = $this->formattingResponse($currencies_info, $currency);
 
         \Yii::$app->telegram->sendMessage([

@@ -3,6 +3,10 @@
 namespace app\modules\api\controllers;
 
 use app\modules\api\commands\BaseCommand;
+use app\modules\api\helpers\BanksCurrencies;
+use app\modules\api\helpers\Cards;
+use app\modules\api\helpers\CurrencyAuction;
+use app\modules\api\helpers\Interbank;
 use app\modules\api\models\StateStorage;
 use app\modules\api\models\Users;
 use yii\base\Exception;
@@ -60,10 +64,13 @@ class TelegramController extends Controller {
         '/start' => 'StartCommand',
         '/help' => 'HelpCommand',
     // courses
-//        '/course' => 'CourseCommand',
         '/usd' => 'ShowUsdCommand',
         '/eur' => 'ShowEurCommand',
         '/rub' => 'ShowRubCommand',
+        '/cards' => 'CardsCommand',
+        '/bankcourses' => 'BanksCoursesCommand',
+        '/mb' => 'MbCommand'
+
     ];
 
     /**
@@ -75,9 +82,9 @@ class TelegramController extends Controller {
     public function beforeAction($action) {
 
         try{
-            $this->update = \Yii::$app->telegram->hook();
-//            $update = \Yii::$app->telegram->getUpdates()->result;
-//            $this->update = array_pop($update);
+//            $this->update = \Yii::$app->telegram->hook();
+            $update = \Yii::$app->telegram->getUpdates()->result;
+            $this->update = array_pop($update);
             if(is_object($this->update)){
                 $this->setUser();
             } else {

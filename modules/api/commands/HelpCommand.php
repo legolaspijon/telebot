@@ -13,9 +13,12 @@ class HelpCommand extends BaseCommand {
         $text.= "\n/settings - ". \Yii::t('app', "you can set language, city, units here");
         $text.= "\n/city - ". \Yii::t('app', "you can set city here, typing on the keyboard");
         $text.= "\n/language - ". \Yii::t('app', "you can choose language here");
-        $text.= "\n/usd - ". \Yii::t('app', "usd info");
-        $text.= "\n/eur - ". \Yii::t('app', "eur info");
-        $text.= "\n/rub - ". \Yii::t('app', "rub info");
+        $text.= "\n/usd - Доллар на валютном аукционе";
+        $text.= "\n/eur - Евро на валютном аукционе";
+        $text.= "\n/rub - Рубль на валютном аукционе";
+        $text.= "\n/mb - Курсы на межбанке";
+        $text.= "\n/cards - Курс конвертации банковских карт";
+        $text.= "\n/bankcourses - Курс валют в банках Украины на сегодня";
 //        $text.= "\n/measurement - ". \Yii::t('app', "set units here");
 //        $text.= "\n/today - ". \Yii::t('app', "today weather");
 //        $text.= "\n/tomorrow - ". \Yii::t('app', "tomorrow weather");
