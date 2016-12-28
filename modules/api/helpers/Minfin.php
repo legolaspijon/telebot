@@ -6,6 +6,8 @@ use \phpQuery;
 
 class Minfin {
 
+    const BASE_URI = 'http://minfin.com.ua/currency/';
+
     const CURRENCY_EUR = 'eur';
     const CURRENCY_USD = 'usd';
     const CURRENCY_RUB = 'rub';
@@ -18,8 +20,6 @@ class Minfin {
         self::CURRENCY_EUR => 'EUR',
         self::CURRENCY_RUB => 'RUB',
     ];
-
-    public $baseUrl = "http://minfin.com.ua/currency/auction/";
 
     /**
      * Get average sums & deals list together
@@ -43,7 +43,8 @@ class Minfin {
     public static function getAverageSum($currency, $city = 'all'){
 //        $key = md5('everage_'.$currency.$city);
 //        if(false === ($html = \Yii::$app->cache->get($key))){
-            $html = self::curl($currency, $city);
+        $params = 'auction/' . $currency;
+        $html = self::curl($params . '/' . self::ACTION_BUY . '/' . $city);
 //            \Yii::$app->cache->add($key, $html, 300);
 //        }
 
@@ -80,11 +81,6 @@ class Minfin {
         ];
     }
 
-    public function getNums($str) {
-        preg_match('/(\b[0-9][0-9 ]+[$|€]?)/u', $str, $num);
-        return isset($num[1]) ? $num[1] : null;
-    }
-
     /**
      * Parse dials list sell & buy
      * @param string $currency
@@ -94,8 +90,9 @@ class Minfin {
     public static function getDealsList($currency, $city = 'all'){
 //        $key = md5('dealslist_'.$currency.$city);
 //        if(false === ($html = \Yii::$app->cache->get($key))){
-            $html['sell'] = self::curl($currency, $city, 'sell');
-            $html['buy'] = self::curl($currency, $city, 'buy');
+            $params = 'auction/' . $currency;
+            $html['sell'] = self::curl($params . '/' . self::ACTION_SELL . '/' . $city);
+            $html['buy'] = self::curl($params . '/' . self::ACTION_BUY . '/' . $city);
 //            \Yii::$app->cache->add($key, $html, 300); // 15 minutes
 //        }
         $deals = array_merge(self::parseDeals($html['sell'], self::ACTION_SELL), self::parseDeals($html['buy'], self::ACTION_BUY));
@@ -130,15 +127,18 @@ class Minfin {
         return $result;
     }
 
+    public static function getNums($str) {
+        preg_match('/(\b[0-9][0-9 ]+[$|€]?)/u', $str, $num);
+        return isset($num[1]) ? $num[1] : null;
+    }
+
     /**
      * Parse minfin HTML
-     * @param $currency
-     * @param string $city
-     * @param string $action
-     * @return mixed
+     * @param $params string
+     * @return string|false
      */
-    public static function curl($currency, $city = 'all', $action = 'buy'){
-        $ch = curl_init('http://minfin.com.ua/currency/auction/'. $currency . '/' . $action . '/' . $city);
+    public static function curl($params){
+        $ch = curl_init(self::BASE_URI . $params);
         curl_setopt($ch, CURLOPT_USERAGENT, 'minfinbot/1.0 (http://minfinbot.web)');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $html = curl_exec($ch);
