@@ -19,7 +19,7 @@ class Users extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    static public function tableName()
     {
         return 'users';
     }
@@ -61,7 +61,7 @@ class Users extends \yii\db\ActiveRecord
      * @param $chat_id integer
      * @return bool
      * */
-    public static function setOption($option, $value, $chat_id)
+    static public function setOption($option, $value, $chat_id)
     {
         $user = self::findOne(['chat_id' => $chat_id]);
         $user->{$option} = $value;
@@ -74,5 +74,20 @@ class Users extends \yii\db\ActiveRecord
     {
         // \Yii::$app->cache->flush();
         return parent::beforeSave($insert);
+    }
+
+    public function getCity(){
+        $fc = mb_strtoupper(mb_substr($this->city, 0, 1));
+        return $fc.mb_substr($this->city, 1);
+    }
+
+    public function getStatestorage(){
+        return $this->hasOne(StateStorage::className(), ['user_id' => 'id']);
+    }
+
+    static public function getUserByChatId($chatId){
+        $user = self::findOne(['chat_id' => $chatId]);
+
+        return $user;
     }
 }

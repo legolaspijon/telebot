@@ -16,6 +16,7 @@ class CurrencyAuction extends MinfinParser {
      * @return array of results
      * */
     public function getCurrencyAuction($currency = self::CURRENCY_USD, $city = 'all'){
+        echo $currency . ' '. $city;
         $result = $this->getAverageSum($currency, $city);
         $result['deals_list'] = $this->getDealsList($currency, $city);
 

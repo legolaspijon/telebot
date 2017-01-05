@@ -11,9 +11,13 @@ class ShowEurCommand extends BaseCommand {
     public function execute()
     {
         $currencyAuction = new CurrencyAuction();
+        echo $this->user->city;
         $city = array_search($this->user->city, \Yii::$app->params['cities']);
         $currency = CurrencyAuction::CURRENCY_EUR;
         $currencies_info = $currencyAuction->getCurrencyAuction($currency, $city);
+
+        \Yii::trace(print_r($currencies_info, true), 'debug');
+
         $text = $this->formattingResponse($currencies_info, $currency);
 
         \Yii::$app->telegram->sendMessage([

@@ -11,6 +11,7 @@ class MbCommand extends BaseCommand {
         $mb = new Interbank();
         $mb_info = $mb->getMB();
         $text = "\n<b>Курсы на межбанке</b>";
+        $text .= "\n<b>Курс к гривне</b>";
         $text .= "\n\n<b>Покупка</b>";
         $text .= $this->text($mb_info['buy']);
         $text .= "\n\n<b>Продажа</b>";

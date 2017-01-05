@@ -12,10 +12,16 @@ class StartCommand extends BaseCommand
         if (is_null($this->user->city)) {
             $this->bot->createCommand('/city');
         } else {
-            $text = \Yii::t("app", "For view supported command list use /help. Also you can start typing '<b>/</b>' for search command.");
-            $text .= "\n\n" . \Yii::t("app", "Select currency which you want to get.");
+            $text = "http://minfin.com.ua/currency/auction/usd/buy/all/\n"
+                    ."Валютный аукцион доллара/евро/рубля.\n"
+                    ."Курс доллара/евро/рубля на валютном аукционе Украины.\n"
+                    ."Валютный аукцион в Украине: курс покупки доллара/евро/рубля на валютном аукционе.\n";
 
-            $btns = [[$btnLabels['/usd'], $btnLabels['/eur']], [$btnLabels['/rub'], $btnLabels['/settings']]];
+            $btns = [
+                [$btnLabels['/currencyauction'], $btnLabels['/mb']],
+                [$btnLabels['/bankcourses'], $btnLabels['/cards']],
+                [$btnLabels['/settings']]
+            ];
             $keyboard = ['keyboard' => $btns, 'resize_keyboard' => true];
 
             \Yii::$app->telegram->sendMessage([

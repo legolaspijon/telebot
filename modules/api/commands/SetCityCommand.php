@@ -10,7 +10,6 @@ class SetCityCommand extends BaseCommand{
     public function execute(){
         $menuEmoji = \Yii::$app->params['emoji']['menu'];
         $message = $this->update->message;
-
         if($this->answer) {
             $this->setCity($this->update->message);
         } else {
@@ -23,7 +22,6 @@ class SetCityCommand extends BaseCommand{
 
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
-                //'text' => \Yii::t('app', 'Enter the city (in Russian)'),
                 'text' => \Yii::t('app', 'Select the city'),
                 'reply_markup' => $keyboard,
             ]);
@@ -32,6 +30,8 @@ class SetCityCommand extends BaseCommand{
 
     private function setCity($message){
         $city = mb_strtolower(trim($message->text));
+        $fc = mb_strtoupper(mb_substr($city, 0, 1));
+        $city = $fc . mb_substr($city, 1);
         if(!$this->checkCity($city)) {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
@@ -48,28 +48,16 @@ class SetCityCommand extends BaseCommand{
             ]);
             StateStorage::unsetIsAnswer($this->user->id);
             StateStorage::removeLastCommand($this->user->id);
-            sleep(1);
             $this->bot->createCommand('/start', null, 1);
         } else {
             \Yii::$app->telegram->sendMessage([
                 'chat_id' => $message->chat->id,
                 'text' =>  \Yii::t('app', 'City {text} is not set, something wrong... try again', ['text' => $city]),
-
             ]);
         }
     }
 
     private function checkCity($city){
-//        $countries = simplexml_load_file('https://pogoda.yandex.ru/static/cities.xml');
-//        foreach ($countries->country as $cities) {
-//            foreach ($cities->city as $xmlcity) {
-//                if (mb_strtolower($xmlcity, "UTF-8") == mb_strtolower($city, "UTF-8")) {
-//                    return true;
-//                }
-//            }
-//        }
-        //\Yii::trace(trim(strtolower($city)), 'debug');
-        \Yii::trace('qwerty' . $city, 'debug');
-        return in_array(trim(strtolower($city)), \Yii::$app->params['cities']) ? true : false;
+        return in_array($city, \Yii::$app->params['cities']) ? true : false;
     }
 }

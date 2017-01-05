@@ -3,7 +3,6 @@
 namespace app\modules\api\commands;
 
 use app\modules\api\helpers\CurrencyAuction;
-use app\modules\api\helpers\Minfin;
 
 class ShowUsdCommand extends BaseCommand {
 

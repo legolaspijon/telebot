@@ -3,10 +3,6 @@
 namespace app\modules\api\controllers;
 
 use app\modules\api\commands\BaseCommand;
-use app\modules\api\helpers\BanksCurrencies;
-use app\modules\api\helpers\Cards;
-use app\modules\api\helpers\CurrencyAuction;
-use app\modules\api\helpers\Interbank;
 use app\modules\api\models\StateStorage;
 use app\modules\api\models\Users;
 use yii\base\Exception;
@@ -48,29 +44,21 @@ class TelegramController extends Controller {
      * command list
      * */
     public $commands = [
-    // Settings
-        '/settings' => 'SettingsCommand',
-//        '/measurement' => 'SetMeasurementCommand',
-        '/city' => 'SetCityCommand',
-        '/language' => 'SetLangCommand',
-//        '/notification' => 'SetNotificationCommand',
-
-    // Show weather for:
-//        '/today' => 'ShowWeatherTodayCommand',
-//        '/tomorrow' => 'ShowWeatherTomorrowCommand',
-//        '/5days' => 'ShowWeatherFiveCommand',
-
         '/hello' => 'HelloCommand',
         '/start' => 'StartCommand',
         '/help' => 'HelpCommand',
-    // courses
+        // Settings
+        '/settings' => 'SettingsCommand',
+        '/city' => 'SetCityCommand',
+        '/language' => 'SetLangCommand',
+        // courses
         '/usd' => 'ShowUsdCommand',
         '/eur' => 'ShowEurCommand',
         '/rub' => 'ShowRubCommand',
         '/cards' => 'CardsCommand',
         '/bankcourses' => 'BanksCoursesCommand',
-        '/mb' => 'MbCommand'
-
+        '/mb' => 'MbCommand',
+        '/currencyauction' => 'CurrencyAuctionCommand',
     ];
 
     /**
@@ -82,18 +70,17 @@ class TelegramController extends Controller {
     public function beforeAction($action) {
 
         try{
-//            $this->update = \Yii::$app->telegram->hook();
-            $update = \Yii::$app->telegram->getUpdates()->result;
-            $this->update = array_pop($update);
+            $this->update = \Yii::$app->telegram->hook();
+//            $update = \Yii::$app->telegram->getUpdates()->result;
+//            $this->update = array_pop($update);
             if(is_object($this->update)){
                 $this->setUser();
             } else {
                 throw new \Exception('update is empty');
             }
-
             \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
         }catch(\Exception $e){
-            \Yii::trace("Error: ". $e->getMessage()."\nLine:".$e->getLine(). "\nFile: ". $e->getFile(), 'debug');
+            \Yii::trace("1) Error: ". $e->getMessage()."\nLine:".$e->getLine(). "\nFile: ". $e->getFile(), 'debug');
         }
 
         call_user_func([$this, $action->actionMethod]);
@@ -106,10 +93,10 @@ class TelegramController extends Controller {
     public function actionWebHook() {
 
         try{
+
             $answer = null;
             if (StateStorage::isAnswer($this->user->id)) {
                 $answer = $this->update->message->text;
-
                 if(mb_strpos($answer, \Yii::t('app', 'back')) !== false) {
                     StateStorage::unsetIsAnswer($this->user->id);
                     StateStorage::removeLastCommand($this->user->id);
@@ -125,27 +112,12 @@ class TelegramController extends Controller {
                     $command = $this->getCommandAlias($this->update->message->text);
                 }
             }
-
-            if($command == '/start') {
-                $this->setStart();
-            }
-
             $this->createCommand($command, $answer);
         }catch(\Exception $e){
-            \Yii::trace("\nError: " .$e->getMessage()."\nLine: ".$e->getLine()."\nFile: ".$e->getFile(), 'debug');
+            \Yii::trace("2)\nError: " .$e->getMessage()."\nLine: ".$e->getLine()."\nFile: ".$e->getFile(), 'debug');
         }
 
         exit;
-    }
-
-    private $_start = false;
-
-    private function setStart() {
-        $this->_start = true;
-    }
-
-    public function isStart() {
-        return $this->_start;
     }
 
     /**
@@ -159,7 +131,7 @@ class TelegramController extends Controller {
         $command = $this->checkCommand($inputCommand, $answer);
         if (!$command) return;
         if ($command instanceof BaseCommand) {
-            StateStorage::setState($inputCommand, $this->user->id, $this->isStart());
+            StateStorage::setState($inputCommand, $this->user->id);
             $command->execute();
         } else {
             throw new Exception('Command class must extends BaseCommand');
@@ -183,6 +155,8 @@ class TelegramController extends Controller {
         return false;
     }
 
+
+
     public function getDefaultCommand($inputCommand) {
         foreach ($this->commands as $command => $class) {
             if ($this->searchCommand($command, $inputCommand)) {
@@ -192,6 +166,10 @@ class TelegramController extends Controller {
         return false;
     }
 
+    /**
+     * @param $inputCommand
+     * @return string|false
+     */
     public function getCommandAlias($inputCommand) {
         foreach (\Yii::$app->params['commandsLabels'][\Yii::$app->language] as $command => $locale) {
             if ($this->searchCommand($locale, $inputCommand)) {
@@ -201,11 +179,21 @@ class TelegramController extends Controller {
         return $this->getDefaultCommand($inputCommand);
     }
 
+    /**
+     * Search command in query
+     *
+     * @param $searchCommand
+     * @param $searchWhere
+     * @return bool
+     */
     protected function searchCommand($searchCommand, $searchWhere) {
         return preg_match("~(\B)?$searchCommand\b~iu", $searchWhere);
     }
 
 
+    /**
+     * Set user if not exist
+     */
     protected function setUser(){
         $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
         if(!$user) {
@@ -216,10 +204,10 @@ class TelegramController extends Controller {
                 'first_name' => $this->update->message->from->first_name,
                 'last_name' => $this->update->message->from->last_name,
             ]);
-            if($user->save()) \Yii::trace('user saved', 'debug');
+            $user->save();
+
             $state = new StateStorage(['user_id' => $user->id]);
             $state->save();
-            \Yii::$app->language = $this->defaultLang;
         }
         $this->user = $user;
     }

@@ -19,7 +19,6 @@ class SetLangCommand extends BaseCommand{
                     'text' => \Yii::t("app", '{language} language was set successfully...', ['language' => $message->text]),
                     'reply_markup' => $this->keyboard($btn)
                 ]);
-                sleep(1);
                 StateStorage::removeLastCommand($this->user->id);
                 $this->bot->createCommand('/start', null, 1);
             } else {

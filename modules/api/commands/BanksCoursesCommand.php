@@ -28,7 +28,8 @@ class BanksCoursesCommand extends BaseCommand {
 
     private function text($currency){
         $text = "\nСредний курс: {$currency['evrg']}";
-        $text .= "\nНБУ: {$currency['nbu']}";
+        $text .= "\nНБУ: ";
+	$text .= !empty($currency['nbu']) ? $currency['nbu'] : '-';
         $text .= "\nВалютный аукцион: {$currency['currency_auction']}";
         return $text;
     }
