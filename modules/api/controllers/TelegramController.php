@@ -16,23 +16,15 @@ class TelegramController extends Controller {
     public $commandClassNamespace = '\app\modules\api\commands\\';
 
     /**
-     * Default Command
-     * @var $defaultCommand string
-     * */
-    public $defaultCommand = '';
-
+     * @var app\modules\api\components\CommandManager
+     */
+    public $manager;
 
     /**
      * Default language
      * @var $defaultCommand string
      * */
     public $defaultLang = 'ru';
-
-    /**
-     * Default measurement
-     * @var $defaultMeasurement string
-     * */
-    public $defaultMeasurement = 'C';
 
     /**
      * last updates
@@ -70,9 +62,9 @@ class TelegramController extends Controller {
     public function beforeAction($action) {
 
         try{
-            $this->update = \Yii::$app->telegram->hook();
-//            $update = \Yii::$app->telegram->getUpdates()->result;
-//            $this->update = array_pop($update);
+//            $this->update = \Yii::$app->telegram->hook();
+            $update = \Yii::$app->telegram->getUpdates()->result;
+            $this->update = array_pop($update);
             if(is_object($this->update)){
                 $this->setUser();
             } else {
@@ -80,10 +72,10 @@ class TelegramController extends Controller {
             }
             \Yii::$app->language = ($this->user) ? $this->user->lang : $this->defaultLang;
         }catch(\Exception $e){
-            \Yii::trace("1) Error: ". $e->getMessage()."\nLine:".$e->getLine(). "\nFile: ". $e->getFile(), 'debug');
+            \Yii::trace($e->getMessage(), 'debug');
         }
 
-        call_user_func([$this, $action->actionMethod]);
+        //call_user_func([$this, $action->actionMethod]);\
         return parent::beforeAction($action);
     }
 
@@ -93,7 +85,6 @@ class TelegramController extends Controller {
     public function actionWebHook() {
 
         try{
-
             $answer = null;
             if (StateStorage::isAnswer($this->user->id)) {
                 $answer = $this->update->message->text;
@@ -114,7 +105,7 @@ class TelegramController extends Controller {
             }
             $this->createCommand($command, $answer);
         }catch(\Exception $e){
-            \Yii::trace("2)\nError: " .$e->getMessage()."\nLine: ".$e->getLine()."\nFile: ".$e->getFile(), 'debug');
+            \Yii::trace($e->getMessage(), 'debug');
         }
 
         exit;

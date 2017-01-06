@@ -32,8 +32,9 @@ class SettingsCommand extends BaseCommand
 
         $btns = [
             [$btnLabels["/start"]],
-            [$emojiEncoded['location']." ".$btnLabels["/city"] /*,$emojiEncoded['units']." ".$btnLabels["/measurement"]*/],
-            [$emojiEncoded['language']." ".$btnLabels["/language"]]
+            [$emojiEncoded['location']." ".$btnLabels["/city"]],
+            [$emojiEncoded['language']." ".$btnLabels["/language"]],
+            [$btnLabels["/notifications"]]
         ];
 
         $keyboard = ["keyboard" => $btns, "resize_keyboard" => true];

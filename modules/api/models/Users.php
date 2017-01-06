@@ -68,13 +68,6 @@ class Users extends \yii\db\ActiveRecord
 
         return $user->save();
     }
-    
-
-    public function beforeSave($insert)
-    {
-        // \Yii::$app->cache->flush();
-        return parent::beforeSave($insert);
-    }
 
     public function getCity(){
         $fc = mb_strtoupper(mb_substr($this->city, 0, 1));

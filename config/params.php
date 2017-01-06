@@ -2,10 +2,8 @@
 
 return [
     'adminEmail' => 'admin@example.com',
-
     'languages' => [
         'ru' => 'Русский',
-        //'en' => 'English',
     ],
     'commandsLabels' => [
         'ru' => [
@@ -25,6 +23,7 @@ return [
             '/mb' => 'Межбанк',
             '/cards' => 'Visa/MasterCard',
             '/bankcourses' => 'Курс в банках',
+            '/notifications' => 'Уведомления'
         ],
         'en' => [
             '/settings' => 'settings',
@@ -39,33 +38,10 @@ return [
             '/eur' => 'EUR',
             '/rub' => 'RUB',
             '/start' => 'main menu',
+            '/notifications' => 'Notifications'
         ],
-    ],
-    'units' => [
-        'C' => 'metric',
-        'F' => 'imperial'
     ],
     'emoji' => [
-        'weather' => [
-            '01d' => "\u2600",
-            '02d' => "\u26C5",
-            '03d' => "\u2601",
-            '04d' => "\u2601",
-            '09d' => "\u2614",
-            '10d' => "\u2614",
-            '11d' => "\u26A1",
-            '13d' => "\u2744",
-            '50d' => "\uD83C\uDF01",
-            '01n' => "\uD83C\uDF19",
-            '02n' => "\u26C5",
-            '03n' => "\u2601",
-            '04n' => "\u2601",
-            '09n' => "\u2614",
-            '10n' => "\u2614",
-            '11n' => "\u26A1",
-            '13n' => "\u2744",
-            '50n' => "\uD83C\uDF01",
-        ],
         'menu' => [
             'location' => "\uD83D\uDCCD",
             'units' => "\uD83D\uDD27",

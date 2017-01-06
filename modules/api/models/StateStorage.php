@@ -53,9 +53,6 @@ class StateStorage extends \yii\db\ActiveRecord
     static public function unsetIsAnswer($id){
         return self::setOption('isAnswer', false, $id);
     }
-    /**
-     * ------------------------------------------------------------------------
-     * */
 
     /**
      * Список выполненых комманд
