@@ -12,7 +12,7 @@ class HelloCommand extends BaseCommand {
         $keyboard = ['inline_keyboard' => $btns];
 
         \Yii::$app->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+            'chat_id' => $this->user->chat_id,
             'text' => 'hello command executed',
             'reply_markup' => json_encode($keyboard),
         ]);

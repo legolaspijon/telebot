@@ -88,4 +88,5 @@ return [
     'Cherkassy' => 'Черкасы',
     'Chernigov' => 'Чернигов',
     'Chernovtsy' => 'Черновцы',
+    'Remove all' => 'Удалить все',
 ];

@@ -2,7 +2,9 @@
 
 namespace app\modules\api\commands;
 
-use app\modules\api\helpers\CurrencyAuction;
+use app\modules\api\helpers\MinfinParser\CurrencyAuction;
+use app\modules\api\components\traits\FinanceTrait;
+
 
 class ShowUsdCommand extends BaseCommand {
 
@@ -17,7 +19,7 @@ class ShowUsdCommand extends BaseCommand {
         $text = $this->formattingResponse($currencies_info, $currency);
 
         \Yii::$app->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+            'chat_id' => $this->user->chat_id,
             'text' => $text,
             'parse_mode' => 'HTML'
         ]);

@@ -2,7 +2,7 @@
 
 namespace app\modules\api\commands;
 
-use app\modules\api\helpers\Interbank;
+use app\modules\api\helpers\MinfinParser\Interbank;
 
 class MbCommand extends BaseCommand {
 
@@ -18,7 +18,7 @@ class MbCommand extends BaseCommand {
         $text .= $this->text($mb_info['cell']);
 
         \Yii::$app->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+            'chat_id' => $this->user->chat_id,
             'text' => $text,
             'parse_mode' => 'HTML'
         ]);

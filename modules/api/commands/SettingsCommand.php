@@ -2,10 +2,11 @@
 
 namespace app\modules\api\commands;
 
+use app\modules\api\models\Notification;
+
 class SettingsCommand extends BaseCommand
 {
     public function execute(){
-        $message = $this->update->message;
         $text = "\n<b>". \Yii::t("app", "Current Settings:") ."</b>";
         $text .= "\n<b>". \Yii::t("app", "City") .":</b> " . $this->user->getCity();
         $text .= "\n<b>". \Yii::t("app", "Language") .":</b> " . \Yii::$app->params['languages'][$this->user->lang];
@@ -14,7 +15,7 @@ class SettingsCommand extends BaseCommand
 
 
         \Yii::$app->telegram->sendMessage([
-            'chat_id' => $message->chat->id,
+            'chat_id' => $this->user->chat_id,
             'text' => $text,
             'parse_mode' => 'HTML',
             'reply_markup' => $this->keyboard()

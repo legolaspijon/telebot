@@ -1,7 +1,6 @@
 <?php
 
 namespace app\modules\api\commands;
-use app\modules\api\controllers\TelegramController;
 use app\modules\api\models\Users;
 
 abstract class BaseCommand {
@@ -22,13 +21,12 @@ abstract class BaseCommand {
     public $user;
 
     /**
-     * @var $bot TelegramController
+     * @var $bot
      * */
     public $bot;
 
-    public function __construct($update, Users $user, $answer = null, TelegramController $bot) {
+    public function __construct(Users $user, $answer = null, $bot) {
         $this->answer = $answer;
-        $this->update = $update;
         $this->user = $user;
         $this->bot = $bot;
     }

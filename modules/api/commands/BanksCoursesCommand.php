@@ -2,7 +2,7 @@
 
 namespace app\modules\api\commands;
 
-use app\modules\api\helpers\BanksCurrencies;
+use app\modules\api\helpers\MinfinParser\BanksCurrencies;
 
 class BanksCoursesCommand extends BaseCommand {
 
@@ -19,11 +19,11 @@ class BanksCoursesCommand extends BaseCommand {
         $text .= "\n\n<b>Рубль</b>";
         $text .= $this->text($banks_info['rub']);
 
-        var_dump(\Yii::$app->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+        \Yii::$app->telegram->sendMessage([
+            'chat_id' => $this->user->chat_id,
             'text' => $text,
             'parse_mode' => 'HTML'
-        ]));
+        ]);
     }
 
     private function text($currency){

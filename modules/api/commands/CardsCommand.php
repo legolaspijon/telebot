@@ -1,7 +1,7 @@
 <?php
 
 namespace app\modules\api\commands;
-use \app\modules\api\helpers\Cards;
+use app\modules\api\helpers\MinfinParser\Cards;
 
 class CardsCommand extends BaseCommand {
 
@@ -18,7 +18,7 @@ class CardsCommand extends BaseCommand {
         $text .= $this->text($cards_info['rub']);
 
         \Yii::$app->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+            'chat_id' => $this->user->chat_id,
             'text' => $text,
             'parse_mode' => 'HTML'
         ]);
@@ -26,8 +26,8 @@ class CardsCommand extends BaseCommand {
 
     private function text($currency){
         $text = "\nСреднекарточный: {$currency['evrgCard']}";
-        $text .= "\nКурс Visa: {$currency['courseVisa']}";
-        $text .= "\nКурс MasterCard: {$currency['courseMasterCard']}";
+        $text .= "\nVisa: {$currency['courseVisa']}";
+        $text .= "\nMasterCard: {$currency['courseMasterCard']}";
         return $text;
     }
 }

@@ -10,10 +10,10 @@ class CurrencyAuctionCommand extends BaseCommand {
         $btns = [[$btnLabels['/start']], [$btnLabels['/usd'], $btnLabels['/eur'], $btnLabels['/rub']]];
         $keyboard = ['keyboard' => $btns, 'resize_keyboard' => true];
 
-        \Yii::trace(print_r(\Yii::$app->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+        \Yii::$app->telegram->sendMessage([
+            'chat_id' => $this->user->chat_id,
             'text' => 'Выберите валюту',
             'reply_markup' => json_encode($keyboard)
-        ]), true), 'debug');
+        ]);
     }
 }

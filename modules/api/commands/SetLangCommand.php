@@ -9,29 +9,28 @@ class SetLangCommand extends BaseCommand{
 
     public function execute(){
 	    $emoji = \Yii::$app->params['emoji']['menu'];
-        $message = $this->update->message;
         if($this->answer) {
-            if($this->setLang($message)) {
+            if($this->setLang($this->answer)) {
                 StateStorage::unsetIsAnswer($this->user->id);
 		        $btn = [[json_decode('"'.$emoji['back'].'"') .' '. \Yii::t('app', 'back')]];
                 \Yii::$app->telegram->sendMessage([
-                    'chat_id' => $message->chat->id,
-                    'text' => \Yii::t("app", '{language} language was set successfully...', ['language' => $message->text]),
+                    'chat_id' => $this->user->chat_id,
+                    'text' => \Yii::t("app", '{language} language was set successfully...', ['language' => $this->answer]),
                     'reply_markup' => $this->keyboard($btn)
                 ]);
                 StateStorage::removeLastCommand($this->user->id);
                 $this->bot->createCommand('/start', null, 1);
             } else {
                 \Yii::$app->telegram->sendMessage([
-                    'chat_id' => $message->chat->id,
-                    'text' => \Yii::t("app", '{language} language was not set, something wrong...', ['language' => $message->text]),
+                    'chat_id' => $this->user->chat_id,
+                    'text' => \Yii::t("app", '{language} language was not set, something wrong...', ['language' => $this->answer]),
                 ]);
             }
         } else {
             StateStorage::setIsAnswer($this->user->id);
 	        $btn = [[json_decode('"'. $emoji['back'] .'"') .' '. \Yii::t('app', 'back')], array_values(\Yii::$app->params['languages'])];
             \Yii::$app->telegram->sendMessage([
-                'chat_id' => $message->chat->id,
+                'chat_id' => $this->user->chat_id,
                 'text' => \Yii::t("app", "Choose language..."),
                 'reply_markup' => $this->keyboard($btn)
             ]);
@@ -43,8 +42,8 @@ class SetLangCommand extends BaseCommand{
     }
 
     protected function setLang($message){
-        $lang = array_search($message->text, \Yii::$app->params['languages']);
-        if(Users::setOption('lang', $lang, $message->chat->id)){
+        $lang = array_search($message, \Yii::$app->params['languages']);
+        if(Users::setOption('lang', $lang, $this->user->chat_id)){
             \Yii::$app->language = $lang;
             return true;
         }

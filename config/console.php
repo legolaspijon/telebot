@@ -9,6 +9,10 @@ $config = [
     'bootstrap' => ['log'],
     'controllerNamespace' => 'app\commands',
     'components' => [
+        'telegram' => [
+            'class' => 'aki\telegram\Telegram',
+            'botToken' => '300714511:AAFmsCWeWYZHMaGqv2AzvwV1dMnDfXmrvWU',
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],

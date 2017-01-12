@@ -7,8 +7,7 @@ class StartCommand extends BaseCommand
     public function execute()
     {
         $btnLabels = \Yii::$app->params['commandsLabels'][\Yii::$app->language];
-        $message = $this->update->message;
-
+        
         if (is_null($this->user->city)) {
             $this->bot->createCommand('/city');
         } else {
@@ -25,7 +24,7 @@ class StartCommand extends BaseCommand
             $keyboard = ['keyboard' => $btns, 'resize_keyboard' => true];
 
             \Yii::$app->telegram->sendMessage([
-                'chat_id' => $message->chat->id,
+                'chat_id' => $this->user->chat_id,
                 'text' => $text,
                 'parse_mode' => 'HTML',
                 'reply_markup' => json_encode($keyboard),

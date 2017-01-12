@@ -21,7 +21,7 @@ class HelpCommand extends BaseCommand {
         $text.= "\n/bankcourses - Курс валют в банках Украины на сегодня";
 
         \Yii::$app->telegram->sendMessage([
-            'chat_id' => $this->update->message->chat->id,
+            'chat_id' => $this->user->chat_id,
             'text' => $text
         ]);
     }

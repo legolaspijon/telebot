@@ -11,7 +11,6 @@ use app\modules\api\helpers\StateStorageHelper;
  * @property string $first_name
  * @property string $last_name
  * @property string $lang
- * @property string $measurement
  * @property string $city
  */
 class Users extends \yii\db\ActiveRecord
@@ -32,7 +31,6 @@ class Users extends \yii\db\ActiveRecord
         return [
             [['chat_id'], 'integer'],
             [['first_name', 'last_name'], 'string', 'max' => 60],
-            [['measurement'], 'in', 'range' => ['F', 'C']],
             [['city'], 'string', 'max' => 255],
             [['lang'], 'in', 'range' => array_keys(\Yii::$app->params['languages'])],
         ];
@@ -54,19 +52,29 @@ class Users extends \yii\db\ActiveRecord
         ];
     }
 
+    public function behaviors()
+    {
+        return [
+            'storage' => [
+                'class' => 'app\modules\api\behaviors\StorageBehavior',
+                'user' => $this
+            ],
+        ];
+    }
+
     /**
      * Save option
      * @param $option string
      * @param $value string
      * @param $chat_id integer
-     * @return bool
+     * @return Users|false
      * */
     static public function setOption($option, $value, $chat_id)
     {
         $user = self::findOne(['chat_id' => $chat_id]);
         $user->{$option} = $value;
 
-        return $user->save();
+        return $user->save() ? $user : false;
     }
 
     public function getCity(){
