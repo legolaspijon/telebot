@@ -32,7 +32,7 @@ class CurrencyAuction extends MinfinParser {
      */
     public function getAverageSum($currency, $city = 'all'){
 
-        $url = self::PAGE . $currency . '/' . self::ACTION_BUY . '/' . $city;
+        $url = self::PAGE . $currency . '/' . self::ACTION_BUY . '/' . $city . '/';
         $html = self::curl($url);
 
         $document = phpQuery::newDocument($html);
@@ -78,8 +78,8 @@ class CurrencyAuction extends MinfinParser {
      */
     public function getDealsList($currency, $city = 'all'){
         $pageUri = self::PAGE . $currency;
-        $html['sell'] = $this->curl($pageUri . '/' . self::ACTION_SELL . '/' . $city);
-        $html['buy'] = $this->curl($pageUri . '/' . self::ACTION_BUY . '/' . $city);
+        $html['sell'] = $this->curl($pageUri . '/' . self::ACTION_SELL . '/' . $city . '/');
+        $html['buy'] = $this->curl($pageUri . '/' . self::ACTION_BUY . '/' . $city . '/');
 
         $deals = array_merge($this->parseDeals($html['sell'], self::ACTION_SELL), $this->parseDeals($html['buy'], self::ACTION_BUY));
 
