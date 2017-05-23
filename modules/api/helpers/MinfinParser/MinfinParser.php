@@ -23,7 +23,7 @@ abstract class MinfinParser {
      */
     protected function curl($params){
         $ch = curl_init(self::BASE_URI . $params);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'minfinbot/2.0 (http://minfinbot.web)');
+        curl_setopt($ch, CURLOPT_USERAGENT, 'minfinbot/3.0 (http://minfinbot.web)');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $html = curl_exec($ch);
         curl_close($ch);

@@ -12,13 +12,13 @@ class SetLangCommand extends BaseCommand{
         if($this->answer) {
             if($this->setLang($this->answer)) {
                 StateStorage::unsetIsAnswer($this->user->id);
-		        $btn = [[json_decode('"'.$emoji['back'].'"') .' '. \Yii::t('app', 'back')]];
+                StateStorage::removeLastCommand($this->user->id);
+                $btn = [[json_decode('"'.$emoji['back'].'"') .' '. \Yii::t('app', 'back')]];
                 \Yii::$app->telegram->sendMessage([
                     'chat_id' => $this->user->chat_id,
                     'text' => \Yii::t("app", '{language} language was set successfully...', ['language' => $this->answer]),
                     'reply_markup' => $this->keyboard($btn)
                 ]);
-                StateStorage::removeLastCommand($this->user->id);
                 $this->bot->createCommand('/start', null, 1);
             } else {
                 \Yii::$app->telegram->sendMessage([

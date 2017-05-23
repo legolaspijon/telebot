@@ -13,6 +13,10 @@ class Notifications extends ActiveRecord {
     const TYPE_AUCTION_EUR = 5;
     const TYPE_AUCTION_RUB = 6;
 
+    const PERIOD_EVERY_HOUR = 1;
+    const PERIOD_EVERY_THREE_HOUR = 2;
+    const PERIOD_TO_TIMES_PER_DAY = 3;
+
 
     public static function tableName()
     {
@@ -42,6 +46,14 @@ class Notifications extends ActiveRecord {
         ];
     }
 
+    static public function getPeriods(){
+        return [
+            self::PERIOD_EVERY_HOUR => 'Каждый час',
+            self::PERIOD_EVERY_THREE_HOUR => 'Каждые 3 часа',
+            self::PERIOD_TO_TIMES_PER_DAY => 'Два раза в день (11, 16)'
+        ];
+    }
+
     public function getCommand(){
         $types = self::getCommands();
         return $types[$this->type];
@@ -57,7 +69,8 @@ class Notifications extends ActiveRecord {
 
         if(empty($notifications)) return '-';
         foreach ($notifications as $notification) {
-            $hours[] = $notification['hour'] . ':00';
+            $label = self::getPeriods();
+            $hours[] = $label[$notification['hour']];
         }
 
         return $hours;
@@ -68,16 +81,16 @@ class Notifications extends ActiveRecord {
         return is_array($notifyArr) ? implode($delimiter, $notifyArr) : $notifyArr;
     }
 
-    public function beforeSave($insert)
-    {
-        if(parent::beforeSave($insert)){
-            $notify = Notifications::find()
-                ->where(['user_id' => $this->user_id, 'hour' => $this->hour, 'type' => $this->type])
-                ->one();
-
-            if(!$notify) return true;
-        }
-
-        return false;
-    }
+//    public function beforeSave($insert)
+//    {
+//        if(parent::beforeSave($insert)){
+//            $notify = Notifications::find()
+//                ->where(['user_id' => $this->user_id, 'type' => $this->type])
+//                ->one();
+//
+//            if(!$notify) return true;
+//        }
+//
+//        return false;
+//    }
 }

@@ -13,7 +13,7 @@ class SetBanksCourseNotificationCommand extends BaseCommand {
     public function execute()
     {
         if ($this->answer) {
-            ($this->answer == \Yii::t('app', 'remove all'))
+            ($this->answer == \Yii::t('app', 'Remove all'))
                 ? $this->removeAll($this->user->id, Notifications::TYPE_BANKS_COURSE)
                 : $this->addNotify($this->answer, Notifications::TYPE_BANKS_COURSE);
         } else {

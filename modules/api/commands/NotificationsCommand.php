@@ -21,12 +21,12 @@ class NotificationsCommand extends BaseCommand {
         ];
         $keyboard = ['keyboard' => $btns];
         $text = "<b>Установленные уведомления</b>\n";
-        $text .= "Межбанк: " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_MB, ', ');
-        $text .= "\nVisa/MasterCard: " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_CARDS, ', ');
-        $text .= "\nКурсы в банках: " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_BANKS_COURSE, ', ');
-        $text .= "\nUSD: " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_AUCTION_USD, ', ');
-        $text .= "\nEUR: " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_AUCTION_EUR, ', ');
-        $text .= "\nRUB: " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_AUCTION_RUB, ', ');
+        $text .= "\n<b>Межбанк:</b> " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_MB, ', ');
+        $text .= "\n<b>Visa/MasterCard:</b> " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_CARDS, ', ');
+        $text .= "\n<b>Курсы в банках:</b> " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_BANKS_COURSE, ', ');
+        $text .= "\n<b>USD:</b> " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_AUCTION_USD, ', ');
+        $text .= "\n<b>EUR:</b> " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_AUCTION_EUR, ', ');
+        $text .= "\n<b>RUB:</b> " . Notifications::getNotifyAsString($this->user->id, Notifications::TYPE_AUCTION_RUB, ', ');
         $text .= "\n\nВыберите для чего установить нотификации";
 
 

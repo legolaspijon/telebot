@@ -17,7 +17,6 @@ class ShowEurCommand extends BaseCommand {
         $currency = CurrencyAuction::CURRENCY_EUR;
         $currencies_info = $currencyAuction->getCurrencyAuction($currency, $city);
 
-        \Yii::trace(print_r($currencies_info, true), 'debug');
 
         $text = $this->formattingResponse($currencies_info, $currency);
 

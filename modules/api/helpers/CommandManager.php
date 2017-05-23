@@ -63,7 +63,7 @@ class CommandManager {
                 $command = StateStorage::getCurrentState($this->user->id);
             }
         }
-        
+
         $this->command = $command;
     }
 
