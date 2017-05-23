@@ -11,9 +11,16 @@ class NotificationController extends Controller {
     public function actionSendMessage() {
         $GMT = 2;
         $hour = date('H') + $GMT;
-        $notifications = Notifications::findAll(['hour' => $hour]);
 
-        foreach ($notifications as $notification) {
+        $notifications = Notifications::find()->where(['hour' => Notifications::PERIOD_EVERY_HOUR]);
+        if(($hour % 3) == 0){
+            $notifications->orWhere(['hour' => Notifications::PERIOD_EVERY_THREE_HOUR]);
+        }
+        if($hour == 11 || $hour == 16){
+            $notifications->orWhere(['hour' => Notifications::PERIOD_TO_TIMES_PER_DAY]);
+        }
+
+        foreach ($notifications->all() as $notification) {
             $user = $notification->user;
             \Yii::$app->language = $user->lang;
             $manager = new CommandManager($user);
@@ -22,5 +29,9 @@ class NotificationController extends Controller {
         }
 
         return true;
+    }
+
+    public function actionTime(){
+        echo date('H:i:s', strtotime('now'));
     }
 }
