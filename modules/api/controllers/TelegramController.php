@@ -28,22 +28,7 @@ class TelegramController extends Controller {
 
 
     public function beforeAction($action) {
-
-        try {
-            $this->update = \Yii::$app->telegram->hook();
-//            $update = \Yii::$app->telegram->getUpdates()->result;
-//            $this->update = array_pop($update);
-            if(is_object($this->update)){
-                $this->setUser();
-            } else {
-                throw new \Exception('update is empty');
-            }
-            \Yii::$app->language = $this->user ? $this->user->lang : $this->defaultLang;
-        } catch(\Exception $e) {
-            \Yii::trace($e->getMessage(), 'debug');
-        }
-
-        call_user_func([$this, $action->actionMethod]);
+        $this->enableCsrfValidation = false;
         return parent::beforeAction($action);
     }
 
@@ -53,6 +38,15 @@ class TelegramController extends Controller {
     public function actionWebHook() {
         try {
 
+            $this->update = \Yii::$app->telegram->hook();
+//            $update = \Yii::$app->telegram->getUpdates()->result;
+//            $this->update = array_pop($update);
+            if(is_object($this->update)){
+                $this->setUser();
+                \Yii::$app->language = $this->user ? $this->user->lang : $this->defaultLang;
+            } else {
+                throw new \Exception('update is empty');
+            }
             $manager = new CommandManager($this->user);
             $manager->createCommand($this->update->message->text);
 
@@ -69,11 +63,13 @@ class TelegramController extends Controller {
     protected function setUser(){
         $user = Users::findOne(['chat_id' => $this->update->message->chat->id]);
         if(!$user) {
+            $lastName = isset($this->update->message->from->last_name) ? $this->update->message->from->last_name : null;
+
             $user = new Users([
                 'lang' => $this->defaultLang,
                 'chat_id' => $this->update->message->chat->id,
                 'first_name' => $this->update->message->from->first_name,
-                'last_name' => $this->update->message->from->last_name,
+                'last_name' => $lastName,
             ]);
             $user->save();
         }
